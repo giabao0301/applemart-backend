@@ -1,7 +1,7 @@
-package com.applestore.backend.productVariationOption;
+package com.applestore.backend.productOption;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.applestore.backend.productVariation.ProductVariation;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Entity
-@Table
-public class ProductVariationOption {
+@Table(name = "product_option")
+public class ProductOption {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne()
+    @JoinColumn(name = "variation_id")
+    private ProductVariation variation;
+
+    private String value;
 }

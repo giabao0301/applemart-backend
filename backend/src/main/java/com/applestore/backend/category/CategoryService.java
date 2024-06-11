@@ -1,2 +1,7 @@
-package com.applestore.backend.category;public interface CategoryService {
+package com.applestore.backend.category;
+
+import java.util.List;
+
+public interface CategoryService {
+    List<CategoryDTO> getAllCategories();
 }
