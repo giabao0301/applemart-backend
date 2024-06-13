@@ -1,6 +1,6 @@
 package com.applestore.backend.product;
 
-import com.applestore.backend.productVariation.ProductVariationDTO;
+import com.applestore.backend.variation.VariationDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -13,5 +13,4 @@ public class ProductDTO {
     private String description;
     private String imageUrl;
     private String slug;
-    private List<ProductVariationDTO> variations;
 }

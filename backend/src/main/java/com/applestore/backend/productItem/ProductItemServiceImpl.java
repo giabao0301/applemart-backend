@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductItemServiceImpl implements ProductItemService {
     private ProductItemRepository productItemRepository;
-
     private ProductItemDTOMapper productItemDTOMapper;
 
     @Override

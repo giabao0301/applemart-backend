@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ProductVariationDTO {
+public class VariationDTO {
     private Integer id;
     private String name;
     private List<variationOptionDTO> options;

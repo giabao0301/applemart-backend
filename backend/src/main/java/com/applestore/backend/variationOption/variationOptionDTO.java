@@ -1,9 +1,9 @@
-package com.applestore.backend.productOption;
+package com.applestore.backend.variationOption;
 
 import lombok.Data;
 
 @Data
-public class ProductOptionDTO {
+public class variationOptionDTO {
     private Integer id;
     private String value;
 }

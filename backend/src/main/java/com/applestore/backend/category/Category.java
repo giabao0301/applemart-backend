@@ -1,5 +1,6 @@
 package com.applestore.backend.category;
 import com.applestore.backend.product.Product;
+import com.applestore.backend.variation.Variation;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,14 +11,34 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
+@Table(name = "category")
 public class Category {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     private String name;
+
+    @Column(unique = true)
+    private String urlKey;
+
     private String imageUrl;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<Variation> variations = new ArrayList<>();
+
+    public void addProduct(Product product) {
+        if (!products.contains(product)) {
+            products.add(product);
+            product.setCategory(this);
+        }
+    }
 }

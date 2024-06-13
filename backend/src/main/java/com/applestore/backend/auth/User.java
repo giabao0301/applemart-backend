@@ -1,5 +1,6 @@
 package com.applestore.backend.auth;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 

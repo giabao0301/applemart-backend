@@ -2,19 +2,18 @@ package com.applestore.backend.product;
 
 import com.applestore.backend.category.Category;
 import com.applestore.backend.productItem.ProductItem;
-import com.applestore.backend.productVariation.ProductVariation;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "product")
 public class Product {
@@ -25,6 +24,7 @@ public class Product {
     private String name;
 
     @ManyToOne()
+    @JsonBackReference
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
@@ -35,11 +35,9 @@ public class Product {
 
     private String slug;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductItem> productItems = new HashSet<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductVariation> variations = new ArrayList<>();
 
     public void addProductItem(ProductItem productItem) {
         if (!productItems.contains(productItem)) {
@@ -47,4 +45,5 @@ public class Product {
             productItem.setProduct(this);
         }
     }
+
 }

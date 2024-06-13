@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class CategoryDTO {
-    private String id;
+    private Integer id;
     private String name;
+    private String urlKey;
     private String imageUrl;
 }

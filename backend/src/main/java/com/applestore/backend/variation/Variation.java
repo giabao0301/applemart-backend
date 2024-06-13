@@ -2,7 +2,7 @@ package com.applestore.backend.variation;
 
 import com.applestore.backend.category.Category;
 import com.applestore.backend.product.Product;
-import com.applestore.backend.variationOption.ProductOption;
+import com.applestore.backend.variationOption.VariationOption;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,8 +14,8 @@ import java.util.List;
 @Setter
 @ToString
 @Entity
-@Table(name = "product_variation")
-public class ProductVariation {
+@Table(name = "variation")
+public class Variation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,20 +23,16 @@ public class ProductVariation {
     private String name;
 
     @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ProductOption> options;
+    private List<VariationOption> options;
 
     @ManyToOne()
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne()
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    public void addProductOption(ProductOption productOption) {
-        if(!options.contains(productOption)) {
-            options.add(productOption);
-            productOption.setVariation(this);
+    public void addProductOption(VariationOption variationOption) {
+        if(!options.contains(variationOption)) {
+            options.add(variationOption);
+            variationOption.setVariation(this);
         }
     }
 }
