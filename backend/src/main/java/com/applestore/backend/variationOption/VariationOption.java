@@ -1,4 +1,4 @@
-package com.applestore.backend.variationOption;
+package com.applestore.backend.productOption;
 
 import com.applestore.backend.productVariation.ProductVariation;
 import jakarta.persistence.*;
