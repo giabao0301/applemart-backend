@@ -1,6 +1,6 @@
-package com.applestore.backend.productImage;
+package com.applestore.backend.product.productImage;
 
-import com.applestore.backend.productItem.ProductItem;
+import com.applestore.backend.product.productItem.ProductItem;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,11 +17,12 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String imageUrl;
+
     @ManyToOne()
     @JsonBackReference
     @JoinColumn(name = "product_item_id", nullable = false)
     private ProductItem productItem;
 
-    private String imageUrl;
 
 }

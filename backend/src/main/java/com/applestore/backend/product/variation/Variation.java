@@ -1,8 +1,7 @@
-package com.applestore.backend.variation;
+package com.applestore.backend.product.variation;
 
 import com.applestore.backend.category.Category;
-import com.applestore.backend.product.Product;
-import com.applestore.backend.variationOption.VariationOption;
+import com.applestore.backend.product.variationOption.VariationOption;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package com.applestore.backend.product;
 
 import com.applestore.backend.category.Category;
-import com.applestore.backend.productItem.ProductItem;
+import com.applestore.backend.product.productItem.ProductItem;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;

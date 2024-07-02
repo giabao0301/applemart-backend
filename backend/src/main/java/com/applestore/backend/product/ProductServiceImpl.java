@@ -4,7 +4,6 @@ import com.applestore.backend.category.Category;
 import com.applestore.backend.category.CategoryRepository;
 import com.applestore.backend.exception.DuplicateResourceException;
 import com.applestore.backend.exception.ResourceNotFoundException;
-import com.applestore.backend.variation.VariationRepository;
 import com.applestore.backend.utils.Slugify;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
         Product newProduct = productDTOMapper.toEntity(productDTO);
 
         if (productRepository.existsByName(newProduct.getName())) {
-            throw new DuplicateResourceException("product already exists");
+            throw new DuplicateResourceException("Product already exists");
         }
 
         newProduct.setSlug(Slugify.slugify(newProduct.getName()));
@@ -55,8 +54,8 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Category [%s] not found".formatted(productDTO.getCategory()));
         }
 
-        Product productResponse = productRepository.save(newProduct);
-        return productDTOMapper.toDTO(productResponse);
+        Product savedProduct = productRepository.save(newProduct);
+        return productDTOMapper.toDTO(savedProduct);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.applestore.backend.category;
 import com.applestore.backend.product.Product;
-import com.applestore.backend.variation.Variation;
+import com.applestore.backend.product.variation.Variation;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;

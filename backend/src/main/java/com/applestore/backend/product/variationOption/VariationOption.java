@@ -1,8 +1,12 @@
-package com.applestore.backend.variationOption;
+package com.applestore.backend.product.variationOption;
 
-import com.applestore.backend.variation.Variation;
+import com.applestore.backend.product.productConfiguration.ProductConfiguration;
+import com.applestore.backend.product.variation.Variation;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +25,7 @@ public class VariationOption {
     @ManyToOne()
     @JoinColumn(name = "variation_id", nullable = false)
     private Variation variation;
+
+    @OneToMany(mappedBy = "variationOption")
+    List<ProductConfiguration> configurations = new ArrayList<>();
 }

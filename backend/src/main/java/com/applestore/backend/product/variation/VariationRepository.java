@@ -1,4 +1,4 @@
-package com.applestore.backend.variation;
+package com.applestore.backend.product.variation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
