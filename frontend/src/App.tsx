@@ -6,7 +6,7 @@ import HomePage from "./components/Home.tsx";
 import SignupForm from "./pages/SignupForm.tsx";
 import LoginForm from "./pages/LoginForm.tsx";
 import CartPage from "./pages/Cart.tsx";
-import ProductDetail from "./components/Product/ProductDetail.tsx";
+import ProductDetail from "./components/product/ProductDetail.tsx";
 
 const router = createBrowserRouter([
   {

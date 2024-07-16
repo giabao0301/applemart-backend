@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { ProductVariation, ProductVariationOption } from "../../types/product";
-import { useProductDetail } from "../../hooks/useProductDetail";
+import { useEffect } from "react";
+import { ProductVariation, ProductVariationOption } from "@/types/product";
+import { useProductDetail } from "@/hooks/useProductDetail";
 
 type ProductImage = {
   id: number;
@@ -20,7 +20,6 @@ const ProductDetail = () => {
     selectedRam,
     selectedSsd,
     selectedQuantity,
-    handleQuantityChange,
   } = useProductDetail();
 
   console.log(selectedColor, selectedRam, selectedSsd, selectedQuantity);

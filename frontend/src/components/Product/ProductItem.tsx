@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import allColors from "../../assets/colorImages/colors";
-import Color from "../../types/color";
+import allColors from "@/assets/colorImages/colors";
+import Color from "@/types/color";
 import { ProductVariation, Product } from "../../types/product";
 
 type Props = {

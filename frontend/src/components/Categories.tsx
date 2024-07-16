@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Category from "../types/category";
+import Category from "@/types/category";
 
 const Categories = () => {
   const [categories, setCategories] = useState<Array<Category>>([]);

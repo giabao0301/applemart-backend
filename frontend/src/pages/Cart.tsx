@@ -1,4 +1,4 @@
-import CarList from "../components/Cart/CartList";
+import CarList from "../components/cart/CartList";
 
 const CartPage = () => {
   return <CarList />;

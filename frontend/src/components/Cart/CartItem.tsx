@@ -7,7 +7,7 @@ const CartItem = () => {
     setQuantity((prevQuantity) => prevQuantity + 1);
   };
 
-  const descreaseQuantityHandler = () => {
+  const decreaseQuantityHandler = () => {
     if (quantity > 1) {
       setQuantity((prevQuantity) => prevQuantity - 1);
     }
@@ -47,7 +47,7 @@ const CartItem = () => {
       <div className="basis-1/12 flex justify-between items-center rounded-sm border">
         <button
           className="text-primary text-2xl px-4 border-r-2"
-          onClick={descreaseQuantityHandler}
+          onClick={decreaseQuantityHandler}
         >
           -
         </button>

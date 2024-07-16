@@ -1,10 +1,10 @@
 import ProductItem from "./ProductItem";
-import { Product } from "../../types/product";
-import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import { Product } from "@/types/product";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import {
   fetchProducts,
   selectProducts,
-} from "../../redux/features/product/productSlice";
+} from "@/redux/features/product/productSlice";
 import { useEffect } from "react";
 
 const ProductList = () => {
