@@ -1,6 +1,5 @@
 package com.applemart.backend.auth;
 
-import com.applemart.backend.user.Role;
 import com.applemart.backend.user.User;
 import com.applemart.backend.user.UserRepository;
 import com.applemart.backend.exception.ResourceNotFoundException;
@@ -36,7 +35,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         List<String> roles = new ArrayList<>();
-        user.getRoles().forEach(role -> roles.add(role.name()));
+        user.getRoles().forEach(role -> roles.add(role.getName()));
         String token = jwtUtil.issueToken(user.getUsername(), roles);
 
         return AuthenticationResponse.builder()

@@ -22,7 +22,7 @@ public class VariationOption {
     
     private String value;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "variation_id", nullable = false)
     private Variation variation;
 

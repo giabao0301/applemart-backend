@@ -42,58 +42,57 @@ public class ProductServiceImpl implements ProductService {
         Product newProduct = productDTOMapper.toEntity(productDTO);
 
         if (productRepository.existsByName(newProduct.getName())) {
-            throw new DuplicateResourceException("Product already exists");
+            throw new DuplicateResourceException("Product [%s] already exists".formatted(newProduct.getName()));
         }
 
         newProduct.setSlug(Slugify.slugify(newProduct.getName()));
 
+        Category category = categoryRepository.findByUrlKey(productDTO.getCategory())
+                .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(productDTO.getCategory())));
 
-        Category category = categoryRepository.findByUrlKey(productDTO.getCategory());
-        if (category != null) {
-            newProduct.setCategory(category);
-        } else {
-            throw new ResourceNotFoundException("Category [%s] not found".formatted(productDTO.getCategory()));
-        }
+        newProduct.setCategory(category);
 
         Product savedProduct = productRepository.save(newProduct);
         return productDTOMapper.toDTO(savedProduct);
     }
 
     @Override
-    public ProductDTO updateProduct(Integer productId, ProductDTO productDTO) {
-        Product requestedProduct = productDTOMapper.toEntity(productDTO);
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product [%d] not found".formatted(productDTO.getId())));
+    public ProductDTO updateProduct(Integer productId, ProductDTO request) {
+        Product productUpdate = productDTOMapper.toEntity(request);
 
-        boolean changes = false;
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id [%d] not found".formatted(request.getId())));
 
-        if (requestedProduct.getName() != null && !requestedProduct.getName().equals(product.getName())) {
-            product.setName(requestedProduct.getName());
-            product.setSlug(Slugify.slugify(requestedProduct.getName()));
-            changes = true;
+        boolean changed = false;
+
+//        Kiểm tra từng thuộc tính xem có thay đổi hay không
+        if (productUpdate.getName() != null && !productUpdate.getName().equals(product.getName())) {
+            product.setName(productUpdate.getName());
+            product.setSlug(Slugify.slugify(productUpdate.getName()));
+            changed = true;
         }
 
-        if (requestedProduct.getDescription() != null && !requestedProduct.getDescription().equals(product.getDescription())) {
-            product.setDescription(requestedProduct.getDescription());
-            changes = true;
+        if (productUpdate.getDescription() != null && !productUpdate.getDescription().equals(product.getDescription())) {
+            product.setDescription(productUpdate.getDescription());
+            changed = true;
         }
 
-        if(requestedProduct.getImageUrl() != null && !requestedProduct.getImageUrl().equals(product.getImageUrl())) {
-            product.setImageUrl(requestedProduct.getImageUrl());
-            changes = true;
+        if (productUpdate.getImageUrl() != null && !productUpdate.getImageUrl().equals(product.getImageUrl())) {
+            product.setImageUrl(productUpdate.getImageUrl());
+            changed = true;
+        }
+//  end
+
+        Category category = categoryRepository.findByUrlKey(request.getCategory())
+                .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(request.getCategory())));
+
+        if (category != null && !category.getName().equals(product.getCategory().getName())) {
+            product.setCategory(category);
+            changed = true;
         }
 
-
-        Category category = categoryRepository.findByUrlKey(productDTO.getCategory());
-        if (category != null) {
-            if (category.getName().equals(product.getCategory().getName())) {
-                product.setCategory(category);
-                changes = true;
-            }
-        } else {
-            throw new ResourceNotFoundException("Category [%s] not found".formatted(productDTO.getCategory()));
-        }
-
-        if (!changes) {
+//        Nếu không có gì thay đổi (giống với data cũ) thì báo lỗi
+        if (!changed) {
             throw new RequestValidationException("No data changes found");
         }
 
@@ -104,7 +103,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product [%d] not found".formatted(id)));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product [%d] not found".formatted(id)));
         productRepository.delete(product);
     }
 }

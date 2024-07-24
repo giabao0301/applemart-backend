@@ -35,10 +35,7 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Variation> variations = new ArrayList<>();
 
-    public void addProduct(Product product) {
-        if (!products.contains(product)) {
-            products.add(product);
-            product.setCategory(this);
-        }
+    public void deleteProduct(Product product) {
+        products.remove(product);
     }
 }

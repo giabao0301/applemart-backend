@@ -2,6 +2,7 @@ package com.applemart.backend.product.productConfiguration;
 
 import com.applemart.backend.product.productItem.ProductItem;
 import com.applemart.backend.product.variationOption.VariationOption;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -7,7 +7,11 @@ import java.util.Optional;
 
 public interface UserService {
     List<UserDTO> getUsers();
-    void addUser(UserRegistrationRequest request);
-    List<AddressDTO> getAddressByUserId(Integer userId);
-    AddressDTO addAddress(Integer userId, AddressDTO request);
+    UserDTO getUserProfile();
+    void createUser(UserRegistrationRequest request);
+    void deleteUserById(Integer id);
+    UserDTO updateUser(UserUpdateRequest request);
+
+    List<AddressDTO> getAddress();
+    AddressDTO addAddress(AddressDTO request);
 }

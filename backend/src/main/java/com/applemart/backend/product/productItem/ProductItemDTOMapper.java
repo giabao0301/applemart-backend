@@ -1,5 +1,6 @@
 package com.applemart.backend.product.productItem;
 
+import com.applemart.backend.product.productImage.ProductImageDTOMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductItemDTOMapper {
     private final ModelMapper modelMapper = new ModelMapper();
-
 
     public ProductItemDTO toDTO(ProductItem productItem) {
         modelMapper
@@ -20,13 +20,6 @@ public class ProductItemDTOMapper {
     }
 
     public ProductItem toEntity(ProductItemDTO productItemDTO) {
-        modelMapper
-                .typeMap(ProductItemDTO.class, ProductItem.class)
-                .addMappings(mapper -> {
-                   mapper.skip(ProductItem::setImages);
-                   mapper.skip(ProductItem::setConfigurations);
-                });
-
         return modelMapper.map(productItemDTO, ProductItem.class);
     }
 }

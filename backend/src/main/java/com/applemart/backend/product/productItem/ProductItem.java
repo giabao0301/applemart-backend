@@ -5,6 +5,7 @@ import com.applemart.backend.product.Product;
 import com.applemart.backend.product.productImage.ProductImage;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -23,11 +24,10 @@ public class ProductItem {
     private Integer id;
 
     @ManyToOne()
-    @JsonBackReference
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
     private String sku;
@@ -39,12 +39,12 @@ public class ProductItem {
 
     private String slug;
 
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductConfiguration> configurations = new ArrayList<>();
 
     public void addProductImage(ProductImage productImage) {
-        if (!this.images.contains(productImage)) {
-            this.images.add(productImage);
+        if (!images.contains(productImage)) {
+            images.add(productImage);
             productImage.setProductItem(this);
         }
     }

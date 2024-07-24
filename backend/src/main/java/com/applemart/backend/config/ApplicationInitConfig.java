@@ -1,6 +1,7 @@
 package com.applemart.backend.config;
 
 import com.applemart.backend.user.Role;
+import com.applemart.backend.user.RoleRepository;
 import com.applemart.backend.user.User;
 import com.applemart.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -20,11 +22,12 @@ public class ApplicationInitConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository){
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository){
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()){
-                var roles = new HashSet<Role>();
-                roles.add(Role.ADMIN);
+                Set<Role> roles = new HashSet<>();
+                roles.add(roleRepository.findByName("ADMIN")
+                        .orElseThrow(() -> new RuntimeException("Admin Role not found")));
 
                 User user = User.builder()
                         .username("admin")

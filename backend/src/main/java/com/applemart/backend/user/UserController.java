@@ -3,6 +3,7 @@ package com.applemart.backend.user;
 import com.applemart.backend.common.response.ApiResponse;
 import com.applemart.backend.user.address.AddressDTO;
 import com.applemart.backend.utils.JWTUtil;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("${api-prefix.path}")
 @RequiredArgsConstructor
 public class UserController {
+    
     private final UserService userService;
     private final JWTUtil jwtUtil;
 
@@ -32,7 +34,7 @@ public class UserController {
 
     @PostMapping(value = {"/users", "/auth/register", "/auth/signup"})
     public ResponseEntity<?> register(@RequestBody @Valid UserRegistrationRequest request) {
-        userService.addUser(request);
+        userService.createUser(request);
 
         String jwtToken = jwtUtil.issueToken(request.getUsername(),"USER");
 
@@ -40,18 +42,42 @@ public class UserController {
                  .header(HttpHeaders.AUTHORIZATION, jwtToken)
                  .body("User registered successfully");
     }
-    
-    @GetMapping("/users/{userId}/addresses")
-    public ResponseEntity<List<AddressDTO>> getAddress(@PathVariable Integer userId) {
-        return new ResponseEntity<>(userService.getAddressByUserId(userId), HttpStatus.OK);
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+         userService.deleteUserById(id);
+
+         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/users/{userId}/addresses")
-    public ResponseEntity<ApiResponse<AddressDTO>> addAddress(@PathVariable Integer userId, @RequestBody AddressDTO request) {
+    @PutMapping("/users")
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@RequestBody @Valid UserUpdateRequest request) {
+         userService.updateUser(request);
+        return null;
+    }
+
+    @GetMapping("/users/profile")
+    public ResponseEntity<ApiResponse<UserDTO>> getUserProfile() {
+        ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(userService.getUserProfile())
+                .build();
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/users/addresses")
+    public ResponseEntity<List<AddressDTO>> getAddress() {
+        return new ResponseEntity<>(userService.getAddress(), HttpStatus.OK);
+    }
+
+    @PostMapping("/users/addresses")
+    public ResponseEntity<ApiResponse<AddressDTO>> addAddress(@RequestBody AddressDTO request) {
         ApiResponse<AddressDTO> apiResponse = ApiResponse.<AddressDTO>builder()
                 .status(HttpStatus.CREATED.value())
                 .message("OK")
-                .data(userService.addAddress(userId, request))
+                .data(userService.addAddress(request))
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
