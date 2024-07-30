@@ -1,0 +1,25 @@
+server:
+  error:
+    include-message: always
+spring:
+  application:
+    name: applemart
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/applemart
+    username: root
+    password: 123456
+    dbcp2:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    banner-mode: off
+  security:
+
+api-prefix:
+  path: api/v1
+
+jwt:
+  secret-key: "0/zwN98/tLYa9/r6YD9C/8vg4w0wJ+AX6ALT2Pm2Fyjp3HHB3G4EYaMEjEshMOdb"
