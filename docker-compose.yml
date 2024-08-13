@@ -1,9 +1,8 @@
 services:
   db:
-    container_name: applemart-db
+    container_name: applemart-mysql
     image: mysql
     environment:
-      MYSQL_DATABASE: applemart
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_USER: giabao
       MYSQL_PASSWORD: password
@@ -14,30 +13,26 @@ services:
     networks:
       - net
     restart: unless-stopped
-  api:
-    container_name: applemart-backend
-    image: giabao144/applemart-api
+  zipkin:
+    container_name: applemart-zipkin
+    image: openzipkin/zipkin
     ports:
-      - "8088:8080"
+      - "9411:9411"
+  kafka:
+    container_name: applemart-kafka
+    image: 'bitnami/kafka:3.7.0'
+    hostname: kafka
+    ports:
+      - '9094:9094'
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/applemart
-    networks:
-        - net
-    depends_on:
-        - db
-    restart: unless-stopped
-  frontend:
-    container_name: applemart-frontend
-    image: giabao144/applemart-react
-    build:
-      args:
-        api_base_url: http://localhost:8088/api/v1
-      context: frontend
-    ports:
-      - "3000:5173"
-    depends_on:
-      - api
-    restart: unless-stopped
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
 networks:
   net:
     driver: bridge

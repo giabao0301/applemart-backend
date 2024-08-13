@@ -1,0 +1,68 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: notification
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/notification
+    username: root
+    password: 123456
+    dbcp2:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: trinhpao246@gmail.com
+    password: xeqm kwkc xkrw nxkp
+
+    properties:
+      mail:
+        smtp:
+          ssl:
+            trust: "*"
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+
+
+
+jwt:
+  secret-key: "0/zwN98/tLYa9/r6YD9C/8vg4w0wJ+AX6ALT2Pm2Fyjp3HHB3G4EYaMEjEshMOdb"
