@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final NotificationService notificationService;
 
     @PostMapping
     public void publishNotification(@RequestBody NotificationRequest request) {
         kafkaTemplate.send("notification", request);
+        notificationService.saveNotification(request);
     }
 }

@@ -27,7 +27,7 @@ public class NotificationListener {
         EmailDetails email = EmailDetails.builder()
                 .recipient(data.getToUserEmail())
                 .subject("Email Verification")
-                .msgBody(buildEmail(data.getToUserName(), LocalDateTime.now(), data.getToken()))
+                .msgBody(buildEmail(data.getToUserName(), LocalDateTime.now(), data.getMessage()))
                 .build();
         emailService.send(email);
     }

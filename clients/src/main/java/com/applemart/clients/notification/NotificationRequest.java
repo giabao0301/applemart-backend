@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class NotificationRequest {
     String toUserName;
     String toUserEmail;
-    String token;
+    String message;
 }

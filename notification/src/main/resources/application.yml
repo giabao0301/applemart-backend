@@ -1,7 +1,9 @@
 server:
-  port: 8082
+  port: 8084
 
 spring:
+  config:
+    import: env.properties
   application:
     name: notification
   jpa:
@@ -9,16 +11,16 @@ spring:
       ddl-auto: update
     open-in-view: false
   datasource:
-    url: jdbc:mysql://localhost:3306/notification
-    username: root
-    password: 123456
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     dbcp2:
       driver-class-name: com.mysql.cj.jdbc.Driver
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: trinhpao246@gmail.com
-    password: xeqm kwkc xkrw nxkp
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
 
     properties:
       mail:
