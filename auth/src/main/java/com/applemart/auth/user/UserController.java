@@ -4,6 +4,7 @@ import com.applemart.auth.ApiResponse;
 import com.applemart.auth.registration.RegistrationRequest;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.utils.JWTUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(
+        name = "User",
+        description = "REST APIs for User"
+)
 @RestController
 @RequestMapping("api/v1/users")
 @RequiredArgsConstructor

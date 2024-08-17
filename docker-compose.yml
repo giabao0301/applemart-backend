@@ -1,6 +1,6 @@
 services:
-  db:
-    container_name: applemart-mysql
+  mysql:
+    container_name: mysql
     image: mysql
     environment:
       MYSQL_ROOT_PASSWORD: 123456
@@ -9,21 +9,25 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - db:/var/lib/mysql
+      - mysql:/var/lib/mysql
     networks:
-      - net
+      - mysql
     restart: unless-stopped
   zipkin:
-    container_name: applemart-zipkin
+    container_name: zipkin
     image: openzipkin/zipkin
     ports:
       - "9411:9411"
+    networks:
+      - spring
   kafka:
-    container_name: applemart-kafka
+    container_name: kafka
     image: 'bitnami/kafka:3.7.0'
     hostname: kafka
     ports:
       - '9094:9094'
+    networks:
+      - spring
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
@@ -32,10 +36,82 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+  eureka-server:
+    image: giabao144/eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+  api-gateway:
+    image: giabao144/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+      - eureka-server
+  auth:
+    image: giabao144/auth:latest
+    container_name: auth
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/auth
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - mysql
+    depends_on:
+      - zipkin
+      - eureka-server
+      - mysql
+      - kafka
+  product:
+    image: giabao144/product:latest
+    container_name: product
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/product
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - mysql
+    depends_on:
+      - zipkin
+      - eureka-server
+      - mysql
+      - kafka
+  notification:
+    image: giabao144/notification:latest
+    container_name: notification
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/notification
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - mysql
+    depends_on:
+      - zipkin
+      - eureka-server
+      - mysql
+      - kafka
 
 networks:
-  net:
+  mysql:
     driver: bridge
-
+  spring:
+    driver: bridge
 volumes:
-  db:
+  mysql:

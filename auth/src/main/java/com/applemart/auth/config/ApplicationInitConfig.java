@@ -22,12 +22,19 @@ public class ApplicationInitConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository){
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()){
+            if (userRepository.findByUsername("admin").isEmpty()) {
                 Set<Role> roles = new HashSet<>();
+
+                if (!roleRepository.existsByName("ADMIN")) {
+                    Role role = new Role();
+                    role.setName("ADMIN");
+                    roleRepository.save(role);
+                }
+
                 roles.add(roleRepository.findByName("ADMIN")
-                        .orElseThrow(() -> new RuntimeException("Admin Role not found")));
+                        .orElseThrow(() -> new RuntimeException("No admin role found")));
 
                 User user = User.builder()
                         .username("admin")

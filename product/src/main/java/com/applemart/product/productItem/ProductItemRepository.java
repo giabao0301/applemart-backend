@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface ProductItemRepository extends JpaRepository<ProductItem, Integer> {
     @Query("SELECT p FROM ProductItem p JOIN FETCH p.images WHERE p.slug = :slug")
     Optional<ProductItem> findBySlug(@Param("slug") String slug);
-    Optional<ProductItem> findById(Integer id);
     boolean existsBySku(String sku);
 }

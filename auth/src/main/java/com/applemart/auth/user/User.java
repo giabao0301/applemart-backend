@@ -4,7 +4,6 @@ import com.applemart.auth.user.address.Address;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -29,7 +28,7 @@ public class User {
     private String phoneNumber;
     private String profileImageUrl;
 
-    @Column(columnDefinition="tinyint(1) default 0", nullable = false)
+    @Column(columnDefinition="tinyint(1) default 0")
     private Boolean enabled;
 
     @ManyToMany

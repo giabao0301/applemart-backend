@@ -1,4 +1,4 @@
-package com.applemart.auth.security;
+package com.applemart.product.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
@@ -30,21 +30,16 @@ public class SecurityFilterChainConfig {
                 .authorizeHttpRequests(requests ->
                         requests
                                 .requestMatchers(
-                                        HttpMethod.POST,
-                                        "/api/v1/users",
-                                        "/api/v1/users/*/addresses",
-                                        "/api/v1/auth/**")
-                                .permitAll()
-                                .requestMatchers(
                                         HttpMethod.GET,
-                                        "/api/v1/auth/registration/confirm",
-                                        "/api/v1/auth/signup/confirm",
+                                        "/api/v1/products",
+                                        "/api/v1/categories",
+                                        "/api/v1/productItems",
                                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
                                 .permitAll()
                                 .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/v1/users"
-                                )
+                                        HttpMethod.PUT,
+                                        "/api/v1/products",
+                                        "/api/v1/categories")
                                 .hasRole("ADMIN")
                                 .anyRequest()
                                 .authenticated())

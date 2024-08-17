@@ -11,7 +11,7 @@ spring:
       ddl-auto: update
     open-in-view: false
   datasource:
-    url: ${DB_URL}
+    url: ${DB_DOCKER_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     dbcp2:
@@ -34,7 +34,7 @@ spring:
           timeout: 3000
           writetimeout: 5000
   kafka:
-    bootstrap-servers: localhost:9094
+    bootstrap-servers: kafka:9094
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -51,14 +51,18 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411
   tracing:
     sampling:
       probability: 1.0
 
+
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
 

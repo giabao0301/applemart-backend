@@ -1,4 +1,4 @@
-package com.applemart.auth.utils;
+package com.applemart.auth.client;
 
 import lombok.Data;
 

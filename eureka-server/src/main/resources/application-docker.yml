@@ -10,12 +10,14 @@ eureka:
     fetch-registry: false
     register-with-eureka: false
 
-
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411
   tracing:
     sampling:
       probability: 1.0

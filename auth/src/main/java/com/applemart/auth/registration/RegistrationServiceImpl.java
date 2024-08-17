@@ -5,7 +5,7 @@ import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.registration.token.ConfirmationToken;
 import com.applemart.auth.registration.token.ConfirmationTokenRepository;
 import com.applemart.auth.user.*;
-import com.applemart.auth.utils.EmailValidationService;
+import com.applemart.auth.client.EmailValidationService;
 import com.applemart.auth.utils.OTPGenerator;
 import com.applemart.clients.notification.NotificationClient;
 import com.applemart.clients.notification.NotificationRequest;
@@ -69,7 +69,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 
         NotificationRequest notificationRequest = NotificationRequest.builder()
-                .token(token)
+                .message(token)
                 .toUserEmail(user.getEmail())
                 .toUserName(user.getFullName())
                 .build();

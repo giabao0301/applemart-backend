@@ -2,7 +2,7 @@ package com.applemart.notification.kafka;
 
 import com.applemart.clients.notification.NotificationRequest;
 import com.applemart.notification.email.EmailDetails;
-import com.applemart.notification.email.EmailServiceImpl;
+import com.applemart.notification.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import static com.applemart.notification.email.EmailBuilder.buildEmail;
 public class NotificationListener {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationListener.class);
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
 
     @KafkaListener(topics = "notification", groupId = " notification-group")
     public void listener(NotificationRequest data) {

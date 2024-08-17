@@ -16,7 +16,7 @@ public class ProductItemController {
     private ProductItemService productItemService;
 
     @GetMapping("/{slug}")
-    public ResponseEntity<ApiResponse<ProductItemDTO>> getAllProductItems(@PathVariable String slug) {
+    public ResponseEntity<ApiResponse<ProductItemDTO>> getAllProductItems(@PathVariable("slug") String slug) {
         ApiResponse<ProductItemDTO> apiResponse = ApiResponse.<ProductItemDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")

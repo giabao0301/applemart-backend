@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProductDTOMapper {
     private final ModelMapper modelMapper = new ModelMapper();
-    private final CategoryRepository categoryRepository;
 
     public ProductDTO toDTO(Product product) {
         modelMapper

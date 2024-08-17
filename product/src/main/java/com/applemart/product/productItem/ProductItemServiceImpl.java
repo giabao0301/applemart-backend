@@ -5,9 +5,7 @@ import com.applemart.product.ProductRepository;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
-import com.applemart.product.productConfiguration.ProductConfiguration;
-import com.applemart.product.productConfiguration.ProductConfigurationId;
-import com.applemart.product.productConfiguration.ProductConfigurationRepository;
+import com.applemart.product.productConfiguration.*;
 import com.applemart.product.productImage.ProductImage;
 import com.applemart.product.variationOption.VariationOption;
 import com.applemart.product.variationOption.VariationOptionRepository;
@@ -28,13 +26,23 @@ public class ProductItemServiceImpl implements ProductItemService {
     private final ProductItemDTOMapper productItemDTOMapper;
     private final VariationOptionRepository variationOptionRepository;
     private final ProductConfigurationRepository productConfigurationRepository;
+    private final ProductConfigurationDTOMapper productConfigurationDTOMapper;
 
     @Override
     @Transactional
     public ProductItemDTO getProductBySlug(String slug) {
         ProductItem productItem = productItemRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Product item not found"));
-        return productItemDTOMapper.toDTO(productItem);
+                .orElseThrow(() -> new ResourceNotFoundException("Product item [%s] not found".formatted(slug)));
+
+        ProductItemDTO productItemDTO = productItemDTOMapper.toDTO(productItem);
+        
+        List<ProductConfigurationDTO> productConfigurationDTOs = productItem.getConfigurations().stream()
+                .map(productConfigurationDTOMapper::toDTO)
+                .toList();
+
+        productItemDTO.setConfigurations(productConfigurationDTOs);
+
+        return productItemDTO;
     }
 
     @Override

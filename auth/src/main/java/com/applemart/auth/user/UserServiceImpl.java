@@ -3,7 +3,6 @@ package com.applemart.auth.user;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
-import com.applemart.auth.registration.RegistrationRequest;
 import com.applemart.auth.user.address.Address;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.user.address.AddressDTOMapper;
@@ -19,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         Set<Role> roles = user.getRoles();
         for (Role role : roles) {
-            if (!roleRepository.existsByName(role.getName())) {
+            if (roleRepository.existsByName(role.getName())) {
                 throw new ResourceNotFoundException("Role [%s] not found".formatted(role.getName()));
             }
         }

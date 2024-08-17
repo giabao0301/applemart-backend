@@ -13,7 +13,7 @@ spring:
       ddl-auto: update
     open-in-view: false
   datasource:
-    url: ${DB_URL}
+    url: ${DB_DOCKER_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     dbcp2:
@@ -22,18 +22,17 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
 
 management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411
   tracing:
     sampling:
       probability: 1.0
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
