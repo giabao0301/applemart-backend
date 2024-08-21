@@ -1,5 +1,6 @@
 package com.applemart.auth.security;
 
+import com.applemart.auth.user.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class SecurityFilterChainConfig {
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,6 +52,7 @@ public class SecurityFilterChainConfig {
                                 .hasRole("ADMIN")
                                 .anyRequest()
                                 .authenticated())
+
                 .oauth2ResourceServer(oauth2 ->
                         oauth2
                                 .jwt(jwtConfigurer ->
@@ -56,7 +61,23 @@ public class SecurityFilterChainConfig {
                                                 .jwtAuthenticationConverter(jwtAuthenticationConverter))
 
                                 .authenticationEntryPoint(authenticationEntryPoint)
-                                .accessDeniedHandler(accessDeniedHandler)
+                                .accessDeniedHandler(accessDeniedHandler))
+                .oauth2Login(oauth2Login ->
+                        oauth2Login
+//                                .loginPage("/login")
+                                .userInfoEndpoint(userInfoEndpoint ->
+                                        userInfoEndpoint
+                                                .userService(customOAuth2UserService)
+                                )
+                )
+                .logout(logout ->
+                        logout
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/") // Redirect to home page after logout
+                                .invalidateHttpSession(true) // Invalidate session
+                                .clearAuthentication(true) // Clear authentication
+                                .deleteCookies("JSESSIONID") // Delete cookies
+                                .permitAll()
                 );
 
         return http.build();

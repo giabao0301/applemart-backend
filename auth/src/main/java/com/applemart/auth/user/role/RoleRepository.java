@@ -1,4 +1,4 @@
-package com.applemart.auth.user;
+package com.applemart.auth.user.role;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

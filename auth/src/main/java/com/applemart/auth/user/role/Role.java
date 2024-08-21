@@ -1,5 +1,6 @@
-package com.applemart.auth.user;
+package com.applemart.auth.user.role;
 
+import com.applemart.auth.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

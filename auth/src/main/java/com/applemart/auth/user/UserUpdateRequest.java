@@ -1,5 +1,6 @@
 package com.applemart.auth.user;
 
+import com.applemart.auth.validator.Username;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,18 +11,16 @@ import java.time.LocalDate;
 @Data
 public class UserUpdateRequest {
 
-    @NotBlank(message = "Username can't be blank")
-    @Size(min = 3, message = "Username must be at least 3 characters long")
+    @Username
     private String username;
 
-    @Email
+    @Email(message = "Invalid email")
     private String email;
 
     private String fullName;
 
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Phone number can't be blank")
     @Size(min = 10, max = 10, message = "Phone number is invalid")
     private String phoneNumber;
 

@@ -6,15 +6,19 @@ import com.applemart.auth.registration.token.ConfirmationToken;
 import com.applemart.auth.registration.token.ConfirmationTokenRepository;
 import com.applemart.auth.user.*;
 import com.applemart.auth.client.EmailValidationService;
+import com.applemart.auth.user.role.Role;
+import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.utils.OTPGenerator;
 import com.applemart.clients.notification.NotificationClient;
 import com.applemart.clients.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -26,7 +30,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ConfirmationTokenRepository confirmationTokenRepository;
-    private final NotificationClient notificationClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final EmailValidationService emailValidationService;
 
     @Override
@@ -48,13 +52,12 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new DuplicateResourceException("Username already exists");
         }
 
-        Set<Role> roles = user.getRoles();
-        for (Role role : roles) {
-            if (!roleRepository.existsByName(role.getName())) {
-                throw new ResourceNotFoundException("Role [%s] not found".formatted(role.getName()));
-            }
-        }
+        Set<Role> roles = new HashSet<>();
 
+        Role role = roleRepository.findByName("USER")
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        roles.add(role);
+        user.setRoles(roles);
         userRepository.save(user);
 
         String token = OTPGenerator.generateOTP(6);
@@ -74,7 +77,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .toUserName(user.getFullName())
                 .build();
 
-        notificationClient.publishNotification(notificationRequest);
+        kafkaTemplate.send("notification", notificationRequest);
     }
 
     @Override

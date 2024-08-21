@@ -1,9 +1,7 @@
 package com.applemart.auth.user;
 
 import com.applemart.auth.ApiResponse;
-import com.applemart.auth.registration.RegistrationRequest;
 import com.applemart.auth.user.address.AddressDTO;
-import com.applemart.auth.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> getUser(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<UserDTO>> getUser(@PathVariable("id") Integer id) {
         ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
@@ -46,7 +44,7 @@ public class UserController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @PostMapping(value ="")
+    @PostMapping
     public ResponseEntity<?> createUser(@RequestBody @Valid UserCreationRequest request) {
         userService.createUser(request);
 
@@ -55,14 +53,14 @@ public class UserController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Integer id) {
         userService.deleteUserById(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable Integer id, @RequestBody @Valid UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable("id") Integer id, @RequestBody @Valid UserUpdateRequest request) {
         ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
@@ -100,7 +98,7 @@ public class UserController {
     }
 
     @PutMapping("/addresses/{id}")
-    public ResponseEntity<ApiResponse<AddressDTO>> updateAddress(@PathVariable Integer id, @RequestBody AddressDTO request) {
+    public ResponseEntity<ApiResponse<AddressDTO>> updateAddress(@PathVariable("id") Integer id, @RequestBody AddressDTO request) {
         ApiResponse<AddressDTO> apiResponse = ApiResponse.<AddressDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
@@ -111,7 +109,7 @@ public class UserController {
     }
 
     @DeleteMapping("/addresses/{id}")
-    public ResponseEntity<?> deleteAddress(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteAddress(@PathVariable("id") Integer id) {
         userService.deleteAddressById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception,
                                                                           HttpServletRequest request) {
         ApiError apiError = ApiError.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .status(HttpStatus.BAD_REQUEST.value())
                 .message(exception.getBindingResult().getAllErrors().get(0).getDefaultMessage())
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())

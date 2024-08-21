@@ -1,5 +1,6 @@
 package com.applemart.auth.registration;
 
+import com.applemart.auth.validator.Username;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,8 +10,7 @@ import lombok.Data;
 @Data
 public class RegistrationRequest {
 
-    @NotBlank(message = "Username can't be blank")
-    @Size(min = 3, message = "Username must be at least 3 characters long")
+    @Username
     private String username;
 
     @NotBlank(message = "Password can't be blank")
@@ -18,7 +18,6 @@ public class RegistrationRequest {
     private String password;
 
     @NotNull(message = "Email can't be null")
-    @NotBlank(message = "Email can't be blank")
     @Email(message = "Invalid email")
     private String email;
 

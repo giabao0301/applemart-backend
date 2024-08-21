@@ -47,15 +47,6 @@ public class ProductItemServiceImpl implements ProductItemService {
 
     @Override
     @Transactional
-    public List<ProductItemDTO> getProductItemByProductName(String productName) {
-        return productItemRepository.findBySlug(productName)
-                .stream()
-                .map(productItemDTOMapper::toDTO)
-                .toList();
-    }
-
-    @Override
-    @Transactional
     public ProductItemDTO createProductItem(ProductItemDTO request) {
         ProductItem newProductItem = productItemDTOMapper.toEntity(request);
 

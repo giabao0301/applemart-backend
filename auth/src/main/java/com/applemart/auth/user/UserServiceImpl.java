@@ -1,15 +1,23 @@
 package com.applemart.auth.user;
 
+import com.applemart.auth.client.EmailValidationService;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
+import com.applemart.auth.registration.token.ConfirmationToken;
+import com.applemart.auth.registration.token.ConfirmationTokenRepository;
 import com.applemart.auth.user.address.Address;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.user.address.AddressDTOMapper;
 import com.applemart.auth.user.address.AddressRepository;
+import com.applemart.auth.user.role.Role;
+import com.applemart.auth.user.role.RoleRepository;
+import com.applemart.auth.utils.OTPGenerator;
+import com.applemart.clients.notification.NotificationRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +26,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -32,6 +42,10 @@ public class UserServiceImpl implements UserService {
     private final AddressDTOMapper addressDTOMapper;
     private final RoleRepository roleRepository;
     private final UserDTOMapper userDTOMapper;
+    private final EmailValidationService emailValidationService;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
 
     //    Lấy user đang đăng nhập.
     private User getLoggedInUser() {
@@ -67,9 +81,23 @@ public class UserServiceImpl implements UserService {
         return userDTOMapper.toDTO(user);
     }
 
+    @Transactional
+    @Override
+    public UserDTO getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User with email [%s] not found".formatted(email)));
+
+        return userDTOMapper.toDTO(user);
+    }
+
 
     @Override
     public void createUser(UserCreationRequest request) {
+
+        if (!emailValidationService.validateEmail(request.getEmail())) {
+            throw new ResourceNotFoundException("Email doesn't exist");
+        }
+
         User user = userDTOMapper.toEntity(request);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -96,6 +124,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
     public UserDTO updateUser(Integer id, UserUpdateRequest request) {
+        if (!emailValidationService.validateEmail(request.getEmail())) {
+            throw new ResourceNotFoundException("Email doesn't exist");
+        }
+
         User user = userRepository.getReferenceById(id);
 
         User userUpdateRequest = userDTOMapper.toEntity(request);
@@ -136,6 +168,24 @@ public class UserServiceImpl implements UserService {
             throw new RequestValidationException("No data changes found");
         }
 
+        String token = OTPGenerator.generateOTP(6);
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+                token,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(15),
+                user
+        );
+
+        confirmationTokenRepository.save(confirmationToken);
+
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .message(token)
+                .toUserEmail(user.getEmail())
+                .toUserName(user.getFullName())
+                .build();
+
+        kafkaTemplate.send("notification", notificationRequest);
+
         return userDTOMapper.toDTO(userRepository.save(user));
     }
 
@@ -152,6 +202,27 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public Optional<User> isUserExist(String identifier) {
+        Optional<User> userWithUsername = userRepository.findByUsername(identifier);
+
+        if (userWithUsername.isPresent()) {
+            return userWithUsername;
+        }
+
+        Optional<User> userWithEmail = userRepository.findByEmail(identifier);
+        if (userWithEmail.isPresent()) {
+            return userWithEmail;
+        }
+
+        Optional<User> userWithPhone = userRepository.findByPhoneNumber(identifier);
+        if (userWithPhone.isPresent()) {
+            return userWithPhone;
+        }
+
+        return Optional.empty();
     }
 
     @Override

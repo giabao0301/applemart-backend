@@ -1,7 +1,7 @@
 package com.applemart.auth.config;
 
-import com.applemart.auth.user.Role;
-import com.applemart.auth.user.RoleRepository;
+import com.applemart.auth.user.role.Role;
+import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.user.User;
 import com.applemart.auth.user.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -4,6 +4,16 @@ server:
   port: 8080
 
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 804858077496-p12lmeegfkvqp5os0lh2m5t8tkmrsg30.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
   config:
     import: env.properties
   application:
@@ -18,7 +28,11 @@ spring:
     password: ${DB_PASSWORD}
     dbcp2:
       driver-class-name: com.mysql.cj.jdbc.Driver
-
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 eureka:
   client:
     service-url:
