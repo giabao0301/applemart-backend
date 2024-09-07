@@ -10,7 +10,6 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
     private Integer id;
-
     private String username;
     private String email;
     private String fullName;

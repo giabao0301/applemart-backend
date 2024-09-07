@@ -4,6 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,10 +57,35 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException exception,
+                                                                  HttpServletRequest request) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException exception,
+                                                                  HttpServletRequest request) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(RequestValidationException.class)
     public ResponseEntity<ApiError> handleRequestValidationException(RequestValidationException exception,
-                                                                  HttpServletRequest request) {
+                                                                     HttpServletRequest request) {
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(exception.getMessage())
@@ -71,7 +100,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception,
                                                                           HttpServletRequest request) {
         ApiError apiError = ApiError.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .status(HttpStatus.BAD_REQUEST.value())
                 .message(exception.getBindingResult().getAllErrors().get(0).getDefaultMessage())
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
@@ -79,6 +108,29 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InsufficientAuthenticationException.class)
+    public ResponseEntity<ApiError> handleInsufficientAuthenticationException(InsufficientAuthenticationException exception,
+                                                                HttpServletRequest request) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException exception,
+                                                                HttpServletRequest request) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message(exception.getMessage())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleEntityNotFoundException(EntityNotFoundException exception,

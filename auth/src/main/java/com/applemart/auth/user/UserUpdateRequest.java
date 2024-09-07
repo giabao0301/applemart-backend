@@ -2,7 +2,6 @@ package com.applemart.auth.user;
 
 import com.applemart.auth.validator.Username;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 

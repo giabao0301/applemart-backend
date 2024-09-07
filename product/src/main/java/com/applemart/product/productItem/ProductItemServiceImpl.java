@@ -1,18 +1,27 @@
 package com.applemart.product.productItem;
 
 import com.applemart.product.Product;
+import com.applemart.product.ProductDTO;
 import com.applemart.product.ProductRepository;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
+import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productConfiguration.*;
 import com.applemart.product.productImage.ProductImage;
+import com.applemart.product.response.PageResponse;
+import com.applemart.product.variation.Variation;
 import com.applemart.product.variationOption.VariationOption;
 import com.applemart.product.variationOption.VariationOptionRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.applemart.product.utils.Slugify.slugify;
@@ -30,19 +39,25 @@ public class ProductItemServiceImpl implements ProductItemService {
 
     @Override
     @Transactional
-    public ProductItemDTO getProductBySlug(String slug) {
-        ProductItem productItem = productItemRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Product item [%s] not found".formatted(slug)));
+    public List<ProductItemDTO> getProductItemsBySlug(String slug) {
+        List<ProductItem> productItems = productItemRepository.findBySlugStartsWith(slug);
 
-        ProductItemDTO productItemDTO = productItemDTOMapper.toDTO(productItem);
-        
-        List<ProductConfigurationDTO> productConfigurationDTOs = productItem.getConfigurations().stream()
-                .map(productConfigurationDTOMapper::toDTO)
+        List<ProductItemDTO> productItemDTOs = productItems
+                .stream()
+                .map(productItemDTOMapper::toDTO)
                 .toList();
 
-        productItemDTO.setConfigurations(productConfigurationDTOs);
+        for (int i = 0; i < productItemDTOs.size(); i++) {
+            List<ProductConfigurationDTO> productConfigurationDTOs = productItems.get(i).getConfigurations()
+                    .stream()
+                    .map(productConfigurationDTOMapper::toDTO)
+                    .toList();
 
-        return productItemDTO;
+            productItemDTOs.get(i).setConfigurations(productConfigurationDTOs);
+        }
+
+
+        return productItemDTOs;
     }
 
     @Override
@@ -58,33 +73,23 @@ public class ProductItemServiceImpl implements ProductItemService {
 
         StringBuilder sku = new StringBuilder(product.getName());
 
-//        Lưu những hình ảnh của sản phẩm
-        List<ProductImage> images = newProductItem.getImages();
-        if (images != null) {
-            for (ProductImage image : images) {
-                image.setProductItem(newProductItem);
-            }
-        }
+        for (ProductConfiguration configuration : newProductItem.getConfigurations()) {
 
-        List<ProductConfiguration> configurations = newProductItem.getConfigurations();
-        if (configurations != null) {
-            for (ProductConfiguration configuration : configurations) {
+            String optionName = configuration.getVariationOption().getVariation().getName();
+            String optionValue = configuration.getVariationOption().getValue();
 
-                String optionName = configuration.getVariationOption().getVariation().getName();
-                String optionValue = configuration.getVariationOption().getValue();
 
-                VariationOption variationOption = variationOptionRepository.findByVariationNameAndValue(optionName, optionValue)
-                        .orElseThrow(() -> new ResourceNotFoundException("Variation option not found"));
+            VariationOption variationOption = variationOptionRepository.findByProductIdAndVariationNameAndValue(product.getId(), optionName, optionValue)
+                    .orElseThrow(() -> new ResourceNotFoundException("Variation [%s: %s] option not found".formatted(optionName, optionValue)));
 
-                configuration.setId(new ProductConfigurationId(newProductItem.getId(), variationOption.getId()));
-                configuration.setVariationOption(variationOption);
-                configuration.setProductItem(newProductItem);
+            configuration.setId(new ProductConfigurationId(newProductItem.getId(), variationOption.getId()));
+            configuration.setVariationOption(variationOption);
+            configuration.setProductItem(newProductItem);
 
-                if (optionName.equals("ssd")) {
-                    sku.append("/").append(optionValue);
-                } else {
-                    sku.append(" ").append(optionValue);
-                }
+            if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
+                sku.append("/").append(optionValue);
+            } else {
+                sku.append(" ").append(optionValue);
             }
         }
 
@@ -97,6 +102,10 @@ public class ProductItemServiceImpl implements ProductItemService {
 
 //      Tự tạo slug từ tên của sku
         newProductItem.setSlug(slugify(newProductItem.getSku()));
+
+        for (ProductAttribute productAttribute: newProductItem.getAttributes()) {
+            productAttribute.setProductItem(newProductItem);
+        }
 
         ProductItem savedProductItem = productItemRepository.save(newProductItem);
 
@@ -132,28 +141,6 @@ public class ProductItemServiceImpl implements ProductItemService {
             changed = true;
         }
 
-//        Kiểm tra xem hình ảnh sản phẩm có bị thay đổi không, nếu có thì thay đổi và lưu vào database
-        List<ProductImage> images = productItem.getImages();
-        List<ProductImage> imagesUpdateRequest = productItemUpdateRequest.getImages();
-
-        if (images != null) {
-            if (images.size() != imagesUpdateRequest.size()) {
-                productItem.setImages(imagesUpdateRequest);
-                changed = true;
-            }
-
-            for (int i = 0; i < images.size(); i++) {
-                ProductImage image = images.get(i);
-                ProductImage imageUpdateRequest = imagesUpdateRequest.get(i);
-
-                if (!imageUpdateRequest.getImageUrl().equals(image.getImageUrl())) {
-                    image.setImageUrl(imageUpdateRequest.getImageUrl());
-                    changed = true;
-                }
-            }
-        }
-//        end
-
 //        Kiểm tra xem configuration sản phẩm có bị thay đổi không, nếu có thì thay đổi và lưu vào database
         List<ProductConfiguration> configurations = productConfigurationRepository.findByProductItem(productItem);
         List<ProductConfiguration> configurationsUpdateRequest = productItemUpdateRequest.getConfigurations();
@@ -170,8 +157,8 @@ public class ProductItemServiceImpl implements ProductItemService {
 
                 String optionName = configurationUpdateRequest.getVariationOption().getVariation().getName();
                 String optionValue = configurationUpdateRequest.getVariationOption().getValue();
-                VariationOption option = variationOptionRepository.findByVariationNameAndValue(optionName, optionValue)
-                                .orElseThrow(() -> new ResourceNotFoundException("Option [%s: %s] not found".formatted(optionName, optionValue)));
+                VariationOption option = variationOptionRepository.findByProductIdAndVariationNameAndValue(product.getId(), optionName, optionValue)
+                        .orElseThrow(() -> new ResourceNotFoundException("Option [%s: %s] not found".formatted(optionName, optionValue)));
 
                 if (!productConfigurationRepository.existsByProductItemAndVariationOption(productItem, option)) {
                     productConfigurationRepository.updateProductConfigurationById(configuration.getId(), option);

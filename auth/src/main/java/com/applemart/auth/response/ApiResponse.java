@@ -1,4 +1,4 @@
-package com.applemart.auth;
+package com.applemart.auth.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface VariationRepository extends JpaRepository<Variation, Integer> {
     Variation findByName(String name);
-    List<Variation> findByCategory(Category category);
+//    List<Variation> findByCategory(Category category);
 }

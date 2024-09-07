@@ -1,10 +1,12 @@
 package com.applemart.product.variation;
 
+import com.applemart.product.Product;
 import com.applemart.product.category.Category;
 import com.applemart.product.variationOption.VariationOption;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -21,17 +23,11 @@ public class Variation {
 
     private String name;
 
-    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<VariationOption> options;
+    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL)
+    private List<VariationOption> options = new ArrayList<>();
 
-    @ManyToOne()
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    public void addProductOption(VariationOption variationOption) {
-        if(!options.contains(variationOption)) {
-            options.add(variationOption);
-            variationOption.setVariation(this);
-        }
-    }
 }

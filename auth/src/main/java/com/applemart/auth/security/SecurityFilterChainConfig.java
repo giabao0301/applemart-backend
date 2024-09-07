@@ -21,7 +21,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityFilterChainConfig {
 
-    private final JwtDecoder jwtDecoder;
+    private final CustomJwtDecoder customJwtDecoder;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
@@ -57,14 +57,13 @@ public class SecurityFilterChainConfig {
                         oauth2
                                 .jwt(jwtConfigurer ->
                                         jwtConfigurer
-                                                .decoder(jwtDecoder)
+                                                .decoder(customJwtDecoder)
                                                 .jwtAuthenticationConverter(jwtAuthenticationConverter))
 
                                 .authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler))
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-//                                .loginPage("/login")
                                 .userInfoEndpoint(userInfoEndpoint ->
                                         userInfoEndpoint
                                                 .userService(customOAuth2UserService)

@@ -9,7 +9,6 @@ import com.applemart.auth.client.EmailValidationService;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.utils.OTPGenerator;
-import com.applemart.clients.notification.NotificationClient;
 import com.applemart.clients.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;

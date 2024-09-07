@@ -1,8 +1,11 @@
 package com.applemart.product.productItem;
 
 import com.applemart.product.Product;
+import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productConfiguration.ProductConfiguration;
 import com.applemart.product.productImage.ProductImage;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,12 +24,11 @@ public class ProductItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> images = new ArrayList<>();
+    private String imageUrl;
 
     private String sku;
 
@@ -40,17 +42,6 @@ public class ProductItem {
     @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductConfiguration> configurations = new ArrayList<>();
 
-    public void addProductImage(ProductImage productImage) {
-        if (!images.contains(productImage)) {
-            images.add(productImage);
-            productImage.setProductItem(this);
-        }
-    }
-
-    public void addProductConfiguration(ProductConfiguration productConfiguration) {
-        if (!this.configurations.contains(productConfiguration)) {
-            this.configurations.add(productConfiguration);
-            productConfiguration.setProductItem(this);
-        }
-    }
+    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductAttribute> attributes = new ArrayList<>();
 }

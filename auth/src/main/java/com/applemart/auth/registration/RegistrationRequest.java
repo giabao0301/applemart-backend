@@ -13,7 +13,7 @@ public class RegistrationRequest {
     @Username
     private String username;
 
-    @NotBlank(message = "Password can't be blank")
+    @NotNull(message = "Password can't be null")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 

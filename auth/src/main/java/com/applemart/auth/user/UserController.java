@@ -1,7 +1,9 @@
 package com.applemart.auth.user;
 
-import com.applemart.auth.ApiResponse;
+import com.applemart.auth.response.ApiResponse;
+import com.applemart.auth.response.PageResponse;
 import com.applemart.auth.user.address.AddressDTO;
+import com.applemart.auth.utils.AppConstants;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +25,18 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserDTO>>> getUsers() {
-        ApiResponse<List<UserDTO>> apiResponse = ApiResponse.<List<UserDTO>>builder()
+    public ResponseEntity<ApiResponse<PageResponse<UserDTO>>> getUsers(
+            @RequestParam(name = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+            @RequestParam(name = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(name = "sort", required = false, defaultValue = AppConstants.DEFAULT_SORT_BY) String sort,
+            @RequestParam(name = "dir", required = false, defaultValue = AppConstants.DEFAULT_SORT_DIRECTION) String dir
+    ) {
+        PageResponse<UserDTO> users = userService.getUsers(page, size, sort, dir);
+
+        ApiResponse<PageResponse<UserDTO>> apiResponse = ApiResponse.<PageResponse<UserDTO>>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
-                .data(userService.getUsers())
+                .data(users)
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -70,7 +79,7 @@ public class UserController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/info")
     public ResponseEntity<ApiResponse<UserDTO>> getUserProfile() {
         ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
                 .status(HttpStatus.OK.value())

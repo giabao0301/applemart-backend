@@ -18,7 +18,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @RequiredArgsConstructor
 public class SecurityFilterChainConfig {
 
-    private final JwtDecoder jwtDecoder;
+    private final CustomJwtDecoder customJwtDecoder;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
@@ -31,15 +31,29 @@ public class SecurityFilterChainConfig {
                         requests
                                 .requestMatchers(
                                         HttpMethod.GET,
-                                        "/api/v1/products",
+                                        "/api/v1/products/**",
+                                        "/api/v1/productItems/**",
                                         "/api/v1/categories",
-                                        "/api/v1/productItems",
                                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
+                                .permitAll()
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/v1/products",
+                                        "/api/v1/productItems",
+                                        "/api/v1/categories"
+                                )
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.PUT,
                                         "/api/v1/products",
+                                        "/api/v1/productItems",
                                         "/api/v1/categories")
+                                .hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/api/v1/products/**",
+                                        "/api/v1/productItems/**",
+                                        "/api/v1/categories/**")
                                 .hasRole("ADMIN")
                                 .anyRequest()
                                 .authenticated())
@@ -47,7 +61,7 @@ public class SecurityFilterChainConfig {
                         oauth2
                                 .jwt(jwtConfigurer ->
                                         jwtConfigurer
-                                                .decoder(jwtDecoder)
+                                                .decoder(customJwtDecoder)
                                                 .jwtAuthenticationConverter(jwtAuthenticationConverter))
 
                                 .authenticationEntryPoint(authenticationEntryPoint)

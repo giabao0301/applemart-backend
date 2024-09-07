@@ -25,13 +25,12 @@ import java.util.Optional;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final JWTUtil jwtUtil;
-    private final UserRepository userRepository;
     private final UserService userService;
 
     @Override
     @Transactional
     public AuthenticationResponse login(AuthenticationRequest request) throws ParseException, JOSEException {
-        String identifier = request.getAuthIdentifier();
+        String identifier = request.getIdentifier();
 
         User user = userService.isUserExist(identifier)
                 .orElseThrow(() -> new BadCredentialsException("Account does not exist"));
@@ -54,4 +53,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .token(token)
                 .build();
     }
+
+    @Override
+    public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
+        boolean isValid = true;
+
+        String token = request.getToken();
+
+        try {
+            jwtUtil.verifyToken(token);
+        } catch (BadCredentialsException | JOSEException | ParseException e) {
+            isValid = false;
+        }
+        return IntrospectResponse.builder()
+                .isValid(isValid)
+                .build();
+    }
+
 }

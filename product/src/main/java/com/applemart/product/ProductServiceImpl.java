@@ -5,11 +5,22 @@ import com.applemart.product.category.CategoryRepository;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
+import com.applemart.product.productAttribute.ProductAttribute;
+import com.applemart.product.productImage.ProductImage;
+import com.applemart.product.productItem.ProductItem;
+import com.applemart.product.response.PageResponse;
+import com.applemart.product.variation.Variation;
+import com.applemart.product.variationOption.VariationOption;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.applemart.product.utils.Slugify.slugify;
 
@@ -20,24 +31,49 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductDTOMapper productDTOMapper;
 
-
     @Override
-    public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+    @Transactional
+    public PageResponse<ProductDTO> getAllProducts(int page, int size, String sort, String dir) {
+        Sort sortBy = dir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sort).ascending()
+                : Sort.by(sort).descending();
 
-        return products
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        Page<Product> pages = productRepository.findAll(pageable);
+
+        List<ProductDTO> productDTOs = pages.getContent()
                 .stream()
                 .map(productDTOMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
+
+        return PageResponse.<ProductDTO>builder()
+                .currentPage(page)
+                .pageSize(pages.getSize())
+                .totalPages(pages.getTotalPages())
+                .totalElements(pages.getTotalElements())
+                .content(productDTOs)
+                .build();
     }
 
     @Override
-    public ProductDTO getProduct(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product [%d] not found".formatted(id)));
+    @Transactional
+    public ProductDTO getProductById(Integer id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id [%d] not found".formatted(id)));
         return productDTOMapper.toDTO(product);
     }
 
     @Override
+    @Transactional
+    public ProductDTO getProductBySlug(String slug) {
+        Product product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with slug [%s] not found".formatted(slug)));
+        return productDTOMapper.toDTO(product);
+    }
+
+    @Override
+    @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
 
         Product newProduct = productDTOMapper.toEntity(productDTO);
@@ -48,16 +84,31 @@ public class ProductServiceImpl implements ProductService {
 
         newProduct.setSlug(slugify(newProduct.getName()));
 
-        Category category = categoryRepository.findByUrlKey(productDTO.getCategory())
+        Category category = categoryRepository.findByName(productDTO.getCategory())
                 .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(productDTO.getCategory())));
 
         newProduct.setCategory(category);
 
+        for (Variation variation : newProduct.getVariations()) {
+            variation.setProduct(newProduct);
+            for (VariationOption option : variation.getOptions()) {
+                option.setVariation(variation);
+            }
+        }
+
+        for (ProductImage productImage : newProduct.getImages()) {
+            productImage.setProduct(newProduct);
+        }
+
+
+
         Product savedProduct = productRepository.save(newProduct);
+
         return productDTOMapper.toDTO(savedProduct);
     }
 
     @Override
+    @Transactional
     public ProductDTO updateProduct(Integer productId, ProductDTO request) {
         Product productUpdate = productDTOMapper.toEntity(request);
 
@@ -78,13 +129,13 @@ public class ProductServiceImpl implements ProductService {
             changed = true;
         }
 
-        if (productUpdate.getImageUrl() != null && !productUpdate.getImageUrl().equals(product.getImageUrl())) {
-            product.setImageUrl(productUpdate.getImageUrl());
+        if (productUpdate.getThumbnailUrl() != null && !productUpdate.getThumbnailUrl().equals(product.getThumbnailUrl())) {
+            product.setThumbnailUrl(productUpdate.getThumbnailUrl());
             changed = true;
         }
 //  end
 
-        Category category = categoryRepository.findByUrlKey(request.getCategory())
+        Category category = categoryRepository.findByName(request.getCategory())
                 .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(request.getCategory())));
 
         if (category != null && !category.getName().equals(product.getCategory().getName())) {

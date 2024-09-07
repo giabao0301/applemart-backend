@@ -5,6 +5,7 @@ import com.applemart.product.ProductRepository;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryDTOMapper categoryDTOMapper;
 
     @Override
+    @Transactional
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categories
@@ -42,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDTO updateCategory(Integer id, CategoryDTO request) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] not found".formatted(id)));
 
         Category categoryToUpdate = categoryDTOMapper.toEntity(request);
 
@@ -58,8 +60,8 @@ public class CategoryServiceImpl implements CategoryService {
             changed = true;
         }
 
-        if (categoryToUpdate.getImageUrl() != null && !categoryToUpdate.getImageUrl().equals(category.getImageUrl())) {
-            category.setImageUrl(categoryToUpdate.getImageUrl());
+        if (categoryToUpdate.getThumbnailUrl() != null && !categoryToUpdate.getThumbnailUrl().equals(category.getThumbnailUrl())) {
+            category.setThumbnailUrl(categoryToUpdate.getThumbnailUrl());
             changed = true;
         }
 

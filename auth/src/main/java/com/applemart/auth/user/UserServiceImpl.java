@@ -6,6 +6,7 @@ import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.registration.token.ConfirmationToken;
 import com.applemart.auth.registration.token.ConfirmationTokenRepository;
+import com.applemart.auth.response.PageResponse;
 import com.applemart.auth.user.address.Address;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.user.address.AddressDTOMapper;
@@ -17,6 +18,10 @@ import com.applemart.clients.notification.NotificationRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -58,12 +63,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserDTO> getUsers() {
-        return userRepository.findAll()
+    public PageResponse<UserDTO> getUsers(int page, int size, String sort, String dir) {
+
+        Sort sortBy = dir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sort).ascending()
+                : Sort.by(sort).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        Page<User> pages = userRepository.findAll(pageable);
+
+        List<UserDTO> userDTOs = pages.getContent()
                 .stream()
                 .map(userDTOMapper::toDTO)
                 .toList();
+
+        return PageResponse.<UserDTO>builder()
+                .currentPage(page)
+                .pageSize(pages.getSize())
+                .totalPages(pages.getTotalPages())
+                .totalElements(pages.getTotalElements())
+                .content(userDTOs)
+                .build();
     }
 
     @Override

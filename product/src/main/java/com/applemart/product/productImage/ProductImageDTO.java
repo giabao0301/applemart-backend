@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class ProductImageDTO {
     private Integer id;
-    private String imageUrl;
+    private String url;
 }

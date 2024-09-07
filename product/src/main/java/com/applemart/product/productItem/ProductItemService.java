@@ -1,8 +1,11 @@
 package com.applemart.product.productItem;
 
+import com.applemart.product.response.PageResponse;
+
+import java.util.List;
 
 public interface ProductItemService {
-    ProductItemDTO getProductBySlug(String slug);
+    List<ProductItemDTO> getProductItemsBySlug(String slug);
     ProductItemDTO createProductItem(ProductItemDTO request);
     ProductItemDTO updateProductItem(Integer id, ProductItemDTO request);
     void deleteProductItem(Integer id);

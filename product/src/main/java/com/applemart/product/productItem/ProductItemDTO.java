@@ -1,9 +1,11 @@
 package com.applemart.product.productItem;
 
+import com.applemart.product.productAttribute.ProductAttributeDTO;
 import com.applemart.product.productConfiguration.ProductConfigurationDTO;
 import com.applemart.product.productImage.ProductImageDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.List;
@@ -20,8 +22,11 @@ public class ProductItemDTO {
 
     @Min(value = 0, message = "Product price is invalid")
     private Double price;
+    private String imageUrl;
     private String slug;
 
-    private List<ProductImageDTO> images;
+    private List<ProductAttributeDTO> attributes;
+
+    @NotNull(message = "Product item's configuration can't be null")
     private List<ProductConfigurationDTO> configurations;
 }

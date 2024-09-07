@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @AllArgsConstructor
@@ -26,14 +28,11 @@ public class Category {
     @Column(unique = true)
     private String urlKey;
 
-    private String imageUrl;
+    private String thumbnailUrl;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
-
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private List<Variation> variations = new ArrayList<>();
 
     public void deleteProduct(Product product) {
         products.remove(product);

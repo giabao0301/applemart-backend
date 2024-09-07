@@ -6,4 +6,5 @@ import java.text.ParseException;
 
 public interface AuthenticationService {
     AuthenticationResponse login(AuthenticationRequest request) throws ParseException, JOSEException;
+    IntrospectResponse introspect(IntrospectRequest token) throws ParseException, JOSEException;
 }

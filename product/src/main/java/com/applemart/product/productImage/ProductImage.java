@@ -1,5 +1,6 @@
 package com.applemart.product.productImage;
 
+import com.applemart.product.Product;
 import com.applemart.product.productItem.ProductItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -16,11 +17,12 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String imageUrl;
+    @Column(nullable = false)
+    private String url;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "product_item_id", nullable = false)
-    private ProductItem productItem;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
 }
