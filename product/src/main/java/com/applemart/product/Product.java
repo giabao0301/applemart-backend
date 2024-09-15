@@ -1,19 +1,13 @@
 package com.applemart.product;
 
 import com.applemart.product.category.Category;
-import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productImage.ProductImage;
 import com.applemart.product.productItem.ProductItem;
-import com.applemart.product.variation.Variation;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,7 +42,5 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Variation> variations = new ArrayList<>();
+    
 }

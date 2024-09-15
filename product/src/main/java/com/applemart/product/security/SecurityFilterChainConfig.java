@@ -34,6 +34,7 @@ public class SecurityFilterChainConfig {
                                         "/api/v1/products/**",
                                         "/api/v1/productItems/**",
                                         "/api/v1/categories",
+                                        "/api/v1/variationOptions/**",
                                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
                                 .permitAll()
                                 .requestMatchers(
@@ -42,12 +43,12 @@ public class SecurityFilterChainConfig {
                                         "/api/v1/productItems",
                                         "/api/v1/categories"
                                 )
-                                .permitAll()
+                                .hasRole("ADMIN")
                                 .requestMatchers(
                                         HttpMethod.PUT,
                                         "/api/v1/products",
                                         "/api/v1/productItems",
-                                        "/api/v1/categories")
+                                        "/api/v1/categories/**")
                                 .hasRole("ADMIN")
                                 .requestMatchers(
                                         HttpMethod.DELETE,

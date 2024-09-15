@@ -10,15 +10,14 @@ CREATE TABLE category (
     FOREIGN KEY(parent_category_id) REFERENCES category(id)
 );
 
-
 CREATE TABLE product (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     name VARCHAR(100) NOT NULL,
     category_id INT NOT NULL,
     lowest_price DOUBLE NOT NULL, 
-	description text,
     thumbnail_url VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
+	description text,
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
@@ -42,9 +41,9 @@ CREATE TABLE product_image (
 
 CREATE TABLE variation (
 	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    product_id INT NOT NULL,
+    category_id INT NOT NULL,
     name VARCHAR(255),
-    FOREIGN KEY(product_id) REFERENCES product(id)
+	FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 CREATE TABLE variation_option (
@@ -58,7 +57,6 @@ CREATE TABLE variation_option (
 CREATE TABLE product_attribute (
 	 id INT NOT NULL  PRIMARY KEY AUTO_INCREMENT,
 	 product_item_id INT NOT NULL,
-     `key` VARCHAR(255) NOT NULL,
      `value` VARCHAR(255) NOT NULL,
      FOREIGN KEY (product_item_id) REFERENCES product_item(id)
 );

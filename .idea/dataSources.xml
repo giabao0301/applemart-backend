@@ -15,11 +15,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="auth@localhost" uuid="c4035d98-a3ef-4f8a-b034-6f20a1447798">
+    <data-source source="LOCAL" name="product@localhost" uuid="20451a7f-553e-46b8-83e0-f1529982ddfb">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/auth</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/product</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
@@ -27,11 +27,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="product@localhost" uuid="20451a7f-553e-46b8-83e0-f1529982ddfb">
+    <data-source source="LOCAL" name="auth@localhost" uuid="6eba360e-b29d-475f-b140-76c367baf3e4">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/product</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/auth</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

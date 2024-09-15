@@ -27,6 +27,5 @@ public class ProductItemDTO {
 
     private List<ProductAttributeDTO> attributes;
 
-    @NotNull(message = "Product item's configuration can't be null")
     private List<ProductConfigurationDTO> configurations;
 }

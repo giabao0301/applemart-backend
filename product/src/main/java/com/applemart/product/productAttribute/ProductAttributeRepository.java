@@ -12,4 +12,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ProductAttributeRepository extends JpaRepository<ProductAttribute, Integer> {
+    List<ProductAttribute> findByProductItem(ProductItem productItem);
 }

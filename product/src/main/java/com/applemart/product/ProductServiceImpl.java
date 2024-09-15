@@ -7,9 +7,11 @@ import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
 import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productImage.ProductImage;
+import com.applemart.product.productImage.ProductImageRepository;
 import com.applemart.product.productItem.ProductItem;
 import com.applemart.product.response.PageResponse;
 import com.applemart.product.variation.Variation;
+import com.applemart.product.variation.VariationRepository;
 import com.applemart.product.variationOption.VariationOption;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.applemart.product.utils.Slugify.slugify;
+import static com.applemart.product.utils.SlugConverter.slugify;
+
 
 @AllArgsConstructor
 @Service
@@ -30,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final ProductDTOMapper productDTOMapper;
+    private final ProductImageRepository productImageRepository;
 
     @Override
     @Transactional
@@ -66,9 +70,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductDTO getProductBySlug(String slug) {
-        Product product = productRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Product with slug [%s] not found".formatted(slug)));
+    public ProductDTO getProductByName(String name) {
+        Product product = productRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with name [%s] not found".formatted(name)));
         return productDTOMapper.toDTO(product);
     }
 
@@ -89,18 +93,9 @@ public class ProductServiceImpl implements ProductService {
 
         newProduct.setCategory(category);
 
-        for (Variation variation : newProduct.getVariations()) {
-            variation.setProduct(newProduct);
-            for (VariationOption option : variation.getOptions()) {
-                option.setVariation(variation);
-            }
-        }
-
         for (ProductImage productImage : newProduct.getImages()) {
             productImage.setProduct(newProduct);
         }
-
-
 
         Product savedProduct = productRepository.save(newProduct);
 
@@ -109,28 +104,32 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductDTO updateProduct(Integer productId, ProductDTO request) {
-        Product productUpdate = productDTOMapper.toEntity(request);
+    public ProductDTO updateProduct(Integer id, ProductDTO request) {
+        Product productUpdateRequest = productDTOMapper.toEntity(request);
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product with id [%d] not found".formatted(request.getId())));
+        Product product = productRepository.getReferenceById(id);
 
         boolean changed = false;
 
 //        Kiểm tra từng thuộc tính xem có thay đổi hay không
-        if (productUpdate.getName() != null && !productUpdate.getName().equals(product.getName())) {
-            product.setName(productUpdate.getName());
-            product.setSlug(slugify(productUpdate.getName()));
+        if (productUpdateRequest.getName() != null && !productUpdateRequest.getName().equals(product.getName())) {
+            product.setName(productUpdateRequest.getName());
+            product.setSlug(slugify(productUpdateRequest.getName()));
             changed = true;
         }
 
-        if (productUpdate.getDescription() != null && !productUpdate.getDescription().equals(product.getDescription())) {
-            product.setDescription(productUpdate.getDescription());
+        if (productUpdateRequest.getLowestPrice() != null && !productUpdateRequest.getLowestPrice().equals(product.getLowestPrice())) {
+            product.setLowestPrice(productUpdateRequest.getLowestPrice());
             changed = true;
         }
 
-        if (productUpdate.getThumbnailUrl() != null && !productUpdate.getThumbnailUrl().equals(product.getThumbnailUrl())) {
-            product.setThumbnailUrl(productUpdate.getThumbnailUrl());
+        if (productUpdateRequest.getDescription() != null && !productUpdateRequest.getDescription().equals(product.getDescription())) {
+            product.setDescription(productUpdateRequest.getDescription());
+            changed = true;
+        }
+
+        if (productUpdateRequest.getThumbnailUrl() != null && !productUpdateRequest.getThumbnailUrl().equals(product.getThumbnailUrl())) {
+            product.setThumbnailUrl(productUpdateRequest.getThumbnailUrl());
             changed = true;
         }
 //  end
@@ -141,6 +140,24 @@ public class ProductServiceImpl implements ProductService {
         if (category != null && !category.getName().equals(product.getCategory().getName())) {
             product.setCategory(category);
             changed = true;
+        }
+
+
+        List<ProductImage> imagesUpdateRequest = productUpdateRequest.getImages();
+        List<ProductImage> images = productImageRepository.findByProduct(product);
+
+        if (images.size() != imagesUpdateRequest.size()) {
+            product.setImages(imagesUpdateRequest);
+        } else {
+            for (int i = 0; i < images.size(); i++) {
+                ProductImage image = images.get(i);
+                ProductImage imageUpdateRequest = imagesUpdateRequest.get(i);
+
+                if (imageUpdateRequest.getUrl() != null && !imageUpdateRequest.getUrl().equals(image.getUrl())) {
+                    image.setUrl(imageUpdateRequest.getUrl());
+                    changed = true;
+                }
+            }
         }
 
 //        Nếu không có gì thay đổi (giống với data cũ) thì báo lỗi

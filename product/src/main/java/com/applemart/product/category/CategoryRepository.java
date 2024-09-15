@@ -7,8 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-    @Query("SELECT c FROM Category c LEFT JOIN FETCH c.products WHERE c.name = :name")
-    Optional<Category> findByName(@Param("name") String name);
+    Optional<Category> findByName(String name);
 
     @Query("SELECT c FROM Category c LEFT JOIN FETCH c.products WHERE c.urlKey = :urlKey")
     Optional<Category> findByUrlKey(@Param("urlKey") String urlKey);

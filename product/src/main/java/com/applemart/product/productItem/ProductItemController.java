@@ -21,15 +21,27 @@ public class ProductItemController {
     private ProductItemService productItemService;
 
     @GetMapping("/{slug}")
-    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemsBySlug(@PathVariable("slug") String slug) {
-        ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
+    public ResponseEntity<ApiResponse<ProductItemDTO>> getProductItemBySlug(@PathVariable("slug") String slug) {
+        ApiResponse<ProductItemDTO> apiResponse = ApiResponse.<ProductItemDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
-                .data(productItemService.getProductItemsBySlug(slug))
+                .data(productItemService.getProductItemBySlug(slug))
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductName(@RequestParam("productName") String productName) {
+        ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(productItemService.getProductItemsByProductName(productName))
+                .build();
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<ProductItemDTO> createProductItem(@RequestBody @Valid ProductItemDTO request) {
@@ -38,7 +50,7 @@ public class ProductItemController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductItemDTO>> updateProductItem(
-            @PathVariable Integer id,
+            @PathVariable("id") Integer id,
             @RequestBody @Valid ProductItemDTO request
     ) {
         ApiResponse<ProductItemDTO> apiResponse = ApiResponse.<ProductItemDTO>builder()

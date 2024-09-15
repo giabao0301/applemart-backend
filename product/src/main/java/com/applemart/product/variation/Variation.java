@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,7 +28,28 @@ public class Variation {
     private List<VariationOption> options = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
+    public void addVariationOption(VariationOption option) {
+        options.add(option);
+        option.setVariation(this);
+    }
+
+    public boolean removeVariationOption(VariationOption option) {
+        return options.remove(option);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Variation variation = (Variation) o;
+        return Objects.equals(id, variation.id) && Objects.equals(name, variation.name) && Objects.equals(options, variation.options) && Objects.equals(category, variation.category);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, options, category);
+    }
 }

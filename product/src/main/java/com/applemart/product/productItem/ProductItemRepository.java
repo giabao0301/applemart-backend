@@ -9,8 +9,11 @@ import java.util.Optional;
 
 
 public interface ProductItemRepository extends JpaRepository<ProductItem, Integer> {
-    @Query("SELECT p FROM ProductItem p WHERE p.slug LIKE :slug% ")
-    List<ProductItem> findBySlugStartsWith(@Param("slug") String slug);
+    @Query("SELECT p FROM ProductItem p WHERE p.slug = :slug")
+    Optional<ProductItem> findBySlug(@Param("slug") String slug);
+
+    @Query("SELECT p FROM ProductItem p WHERE p.product.name = :productName")
+    List<ProductItem> findByProductName(@Param("productName") String productName);
 
     boolean existsBySku(String sku);
 

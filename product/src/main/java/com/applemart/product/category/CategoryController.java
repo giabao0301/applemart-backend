@@ -16,9 +16,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getAllCategories() {
         List<CategoryDTO> categories = categoryService.getAllCategories();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        ApiResponse<List<CategoryDTO>> apiResponse = ApiResponse.<List<CategoryDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(categories)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @PostMapping
@@ -39,7 +44,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(@PathVariable Integer id, @RequestBody @Valid CategoryDTO request) {
+    public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(@PathVariable("id") Integer id, @RequestBody @Valid CategoryDTO request) {
         ApiResponse<CategoryDTO> apiResponse = ApiResponse.<CategoryDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("Category updated successfully")

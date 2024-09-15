@@ -13,7 +13,8 @@ public class ProductDTOMapper {
     public ProductDTO toDTO(Product product) {
         modelMapper
                 .typeMap(Product.class, ProductDTO.class)
-                .addMapping(src -> src.getCategory().getUrlKey(), ProductDTO::setCategory);
+                .addMapping(src -> src.getCategory().getUrlKey(), ProductDTO::setCategory)
+                .addMapping(src -> src.getCategory().getParentCategory().getUrlKey(), ProductDTO::setParentCategory);
         return modelMapper.map(product, ProductDTO.class);
     }
 

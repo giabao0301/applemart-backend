@@ -52,8 +52,8 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ProductDTO> getProductBySlug(@RequestParam("slug") String slug) {
-        ProductDTO product = productService.getProductBySlug(slug);
+    public ResponseEntity<ProductDTO> getProductByName(@RequestParam("name") String name) {
+        ProductDTO product = productService.getProductByName(name);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 

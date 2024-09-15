@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface VariationOptionRepository extends JpaRepository<VariationOption, Integer> {
-    @Query("SELECT v FROM VariationOption v WHERE v.variation.product.id = :id AND v.variation.name = :variationName AND v.value = :value")
-    Optional<VariationOption> findByProductIdAndVariationNameAndValue(@Param("id") Integer id, @Param("variationName") String variationName, @Param("value") String value);
+    void deleteAllByVariationId(int variationId);
+
+    @Query("SELECT v FROM VariationOption v WHERE v.variation.category.id = :id AND v.variation.name = :variationName AND v.value = :value")
+    Optional<VariationOption> findByCategoryIdAndVariationNameAndValue(@Param("id") Integer id, @Param("variationName") String variationName, @Param("value") String value);
 }

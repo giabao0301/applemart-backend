@@ -1,14 +1,11 @@
 package com.applemart.product.category;
 import com.applemart.product.Product;
 import com.applemart.product.variation.Variation;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @AllArgsConstructor
@@ -30,11 +27,30 @@ public class Category {
 
     private String thumbnailUrl;
 
-    @JsonManagedReference
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "parent_category_id")
+    private Category parentCategory;
+
+    @OneToMany(mappedBy = "parentCategory")
+    private List<Category> childrenCategory = new ArrayList<>();
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
 
-    public void deleteProduct(Product product) {
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<Variation> variations = new ArrayList<>();
+
+    public void removeProduct(Product product) {
         products.remove(product);
+    }
+
+    public void addVariation(Variation variation) {
+        variations.add(variation);
+        variation.setCategory(this);
+    }
+
+    public boolean removeVariation(Variation variation) {
+        return variations.remove(variation);
     }
 }

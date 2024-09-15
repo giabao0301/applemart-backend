@@ -1,30 +1,22 @@
 package com.applemart.product.productItem;
 
 import com.applemart.product.Product;
-import com.applemart.product.ProductDTO;
 import com.applemart.product.ProductRepository;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
 import com.applemart.product.productAttribute.ProductAttribute;
+import com.applemart.product.productAttribute.ProductAttributeRepository;
 import com.applemart.product.productConfiguration.*;
-import com.applemart.product.productImage.ProductImage;
-import com.applemart.product.response.PageResponse;
-import com.applemart.product.variation.Variation;
 import com.applemart.product.variationOption.VariationOption;
 import com.applemart.product.variationOption.VariationOptionRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.applemart.product.utils.Slugify.slugify;
+import static com.applemart.product.utils.SlugConverter.slugify;
 
 
 @AllArgsConstructor
@@ -36,11 +28,28 @@ public class ProductItemServiceImpl implements ProductItemService {
     private final VariationOptionRepository variationOptionRepository;
     private final ProductConfigurationRepository productConfigurationRepository;
     private final ProductConfigurationDTOMapper productConfigurationDTOMapper;
+    private final ProductAttributeRepository productAttributeRepository;
 
     @Override
     @Transactional
-    public List<ProductItemDTO> getProductItemsBySlug(String slug) {
-        List<ProductItem> productItems = productItemRepository.findBySlugStartsWith(slug);
+    public ProductItemDTO getProductItemBySlug(String slug) {
+        ProductItem productItem = productItemRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Product item not found"));
+
+        List<ProductConfigurationDTO> configurations = productItem.getConfigurations().stream()
+                .map(productConfigurationDTOMapper::toDTO)
+                .toList();
+
+        ProductItemDTO productItemDTO = productItemDTOMapper.toDTO(productItem);
+        productItemDTO.setConfigurations(configurations);
+
+        return productItemDTO;
+    }
+
+    @Override
+    @Transactional
+    public List<ProductItemDTO> getProductItemsByProductName(String productName) {
+        List<ProductItem> productItems = productItemRepository.findByProductName(productName);
 
         List<ProductItemDTO> productItemDTOs = productItems
                 .stream()
@@ -77,13 +86,13 @@ public class ProductItemServiceImpl implements ProductItemService {
 
             String optionName = configuration.getVariationOption().getVariation().getName();
             String optionValue = configuration.getVariationOption().getValue();
+            Integer categoryId = product.getCategory().getId();
 
-
-            VariationOption variationOption = variationOptionRepository.findByProductIdAndVariationNameAndValue(product.getId(), optionName, optionValue)
+            VariationOption option =  variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
                     .orElseThrow(() -> new ResourceNotFoundException("Variation [%s: %s] option not found".formatted(optionName, optionValue)));
 
-            configuration.setId(new ProductConfigurationId(newProductItem.getId(), variationOption.getId()));
-            configuration.setVariationOption(variationOption);
+            configuration.setId(new ProductConfigurationId(newProductItem.getId(), option.getId()));
+            configuration.setVariationOption(option);
             configuration.setProductItem(newProductItem);
 
             if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
@@ -103,13 +112,11 @@ public class ProductItemServiceImpl implements ProductItemService {
 //      Tự tạo slug từ tên của sku
         newProductItem.setSlug(slugify(newProductItem.getSku()));
 
-        for (ProductAttribute productAttribute: newProductItem.getAttributes()) {
+        for (ProductAttribute productAttribute : newProductItem.getAttributes()) {
             productAttribute.setProductItem(newProductItem);
         }
 
-        ProductItem savedProductItem = productItemRepository.save(newProductItem);
-
-        return productItemDTOMapper.toDTO(savedProductItem);
+        return productItemDTOMapper.toDTO(productItemRepository.save(newProductItem));
     }
 
     @Override
@@ -145,19 +152,19 @@ public class ProductItemServiceImpl implements ProductItemService {
         List<ProductConfiguration> configurations = productConfigurationRepository.findByProductItem(productItem);
         List<ProductConfiguration> configurationsUpdateRequest = productItemUpdateRequest.getConfigurations();
 
-        if (configurations != null) {
-            if (configurations.size() != configurationsUpdateRequest.size()) {
-                productItem.setConfigurations(configurationsUpdateRequest);
-                changed = true;
-            }
-
+        if (configurations.size() != configurationsUpdateRequest.size()) {
+            productItem.setConfigurations(configurationsUpdateRequest);
+            changed = true;
+        } else {
             for (int i = 0; i < configurations.size(); i++) {
                 ProductConfiguration configuration = configurations.get(i);
                 ProductConfiguration configurationUpdateRequest = configurationsUpdateRequest.get(i);
 
                 String optionName = configurationUpdateRequest.getVariationOption().getVariation().getName();
                 String optionValue = configurationUpdateRequest.getVariationOption().getValue();
-                VariationOption option = variationOptionRepository.findByProductIdAndVariationNameAndValue(product.getId(), optionName, optionValue)
+                Integer categoryId = product.getCategory().getId();
+
+                VariationOption option =  variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
                         .orElseThrow(() -> new ResourceNotFoundException("Option [%s: %s] not found".formatted(optionName, optionValue)));
 
                 if (!productConfigurationRepository.existsByProductItemAndVariationOption(productItem, option)) {
@@ -165,10 +172,29 @@ public class ProductItemServiceImpl implements ProductItemService {
                     changed = true;
                 }
 
-                if (optionName.equals("ssd")) {
+                if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
                     sku.append("/").append(optionValue);
                 } else {
                     sku.append(" ").append(optionValue);
+                }
+            }
+        }
+
+
+        List<ProductAttribute> attributesUpdateRequest = productItemUpdateRequest.getAttributes();
+        List<ProductAttribute> attributes = productAttributeRepository.findByProductItem(productItem);
+
+        if (attributes.size() != attributesUpdateRequest.size()) {
+            productItem.setAttributes(attributesUpdateRequest);
+            changed = true;
+        } else {
+            for (int i = 0; i < attributes.size(); i++) {
+                ProductAttribute attribute = attributes.get(i);
+                ProductAttribute attributeUpdateRequest = attributesUpdateRequest.get(i);
+
+                if (attributeUpdateRequest.getValue() != null && !attributeUpdateRequest.getValue().equals(attribute.getValue())) {
+                    attribute.setValue(attributeUpdateRequest.getValue());
+                    changed = true;
                 }
             }
         }

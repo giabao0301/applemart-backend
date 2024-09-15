@@ -22,7 +22,7 @@ CREATE TABLE user_role (
 );
 
 create table address (
-	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY ,
+	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     user_id INT NOT NULL,
 	address_line VARCHAR(255) NOT NULL,
     ward VARCHAR(255) NOT NULL,
