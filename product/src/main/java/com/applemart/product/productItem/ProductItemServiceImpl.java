@@ -8,10 +8,13 @@ import com.applemart.product.exception.ResourceNotFoundException;
 import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productAttribute.ProductAttributeRepository;
 import com.applemart.product.productConfiguration.*;
+import com.applemart.product.productImage.ProductImage;
 import com.applemart.product.variationOption.VariationOption;
 import com.applemart.product.variationOption.VariationOptionRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,19 +25,19 @@ import static com.applemart.product.utils.SlugConverter.slugify;
 @AllArgsConstructor
 @Service
 public class ProductItemServiceImpl implements ProductItemService {
+    private static final Logger log = LoggerFactory.getLogger(ProductItemServiceImpl.class);
     private final ProductRepository productRepository;
     private final ProductItemRepository productItemRepository;
     private final ProductItemDTOMapper productItemDTOMapper;
     private final VariationOptionRepository variationOptionRepository;
     private final ProductConfigurationRepository productConfigurationRepository;
     private final ProductConfigurationDTOMapper productConfigurationDTOMapper;
-    private final ProductAttributeRepository productAttributeRepository;
 
     @Override
     @Transactional
     public ProductItemDTO getProductItemBySlug(String slug) {
         ProductItem productItem = productItemRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Product item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product item with slug [%s] not found".formatted(slug)));
 
         List<ProductConfigurationDTO> configurations = productItem.getConfigurations().stream()
                 .map(productConfigurationDTOMapper::toDTO)
@@ -48,8 +51,24 @@ public class ProductItemServiceImpl implements ProductItemService {
 
     @Override
     @Transactional
-    public List<ProductItemDTO> getProductItemsByProductName(String productName) {
-        List<ProductItem> productItems = productItemRepository.findByProductName(productName);
+    public ProductItemDTO getProductItemById(Integer id) {
+        ProductItem productItem = productItemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product item with id [%d] not found".formatted(id)));
+
+        List<ProductConfigurationDTO> configurations = productItem.getConfigurations().stream()
+                .map(productConfigurationDTOMapper::toDTO)
+                .toList();
+
+        ProductItemDTO productItemDTO = productItemDTOMapper.toDTO(productItem);
+        productItemDTO.setConfigurations(configurations);
+
+        return productItemDTO;
+    }
+
+    @Override
+    @Transactional
+    public List<ProductItemDTO> getProductItemsByProductId(Integer productId) {
+        List<ProductItem> productItems = productItemRepository.findByProductId(productId);
 
         List<ProductItemDTO> productItemDTOs = productItems
                 .stream()
@@ -64,7 +83,6 @@ public class ProductItemServiceImpl implements ProductItemService {
 
             productItemDTOs.get(i).setConfigurations(productConfigurationDTOs);
         }
-
 
         return productItemDTOs;
     }
@@ -88,7 +106,7 @@ public class ProductItemServiceImpl implements ProductItemService {
             String optionValue = configuration.getVariationOption().getValue();
             Integer categoryId = product.getCategory().getId();
 
-            VariationOption option =  variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
+            VariationOption option = variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
                     .orElseThrow(() -> new ResourceNotFoundException("Variation [%s: %s] option not found".formatted(optionName, optionValue)));
 
             configuration.setId(new ProductConfigurationId(newProductItem.getId(), option.getId()));
@@ -126,7 +144,8 @@ public class ProductItemServiceImpl implements ProductItemService {
         ProductItem productItemUpdateRequest = productItemDTOMapper.toEntity(request);
 
 //        Product Item ở trong database
-        ProductItem productItem = productItemRepository.getReferenceById(id);
+        ProductItem productItem = productItemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product item with id [%d] not found".formatted(id)));
 
         //        Product của productItem
         Product product = productRepository.findByName(request.getProductName())
@@ -134,7 +153,6 @@ public class ProductItemServiceImpl implements ProductItemService {
 
         productItem.setProduct(product);
 
-        StringBuilder sku = new StringBuilder(product.getName());
 
         boolean changed = false;
 
@@ -148,14 +166,55 @@ public class ProductItemServiceImpl implements ProductItemService {
             changed = true;
         }
 
-//        Kiểm tra xem configuration sản phẩm có bị thay đổi không, nếu có thì thay đổi và lưu vào database
-        List<ProductConfiguration> configurations = productConfigurationRepository.findByProductItem(productItem);
-        List<ProductConfiguration> configurationsUpdateRequest = productItemUpdateRequest.getConfigurations();
-
-        if (configurations.size() != configurationsUpdateRequest.size()) {
-            productItem.setConfigurations(configurationsUpdateRequest);
+        if (productItemUpdateRequest.getImageUrl() != null && !productItemUpdateRequest.getImageUrl().equals(productItem.getImageUrl())) {
+            productItem.setImageUrl(productItemUpdateRequest.getImageUrl());
             changed = true;
-        } else {
+        }
+
+//        Kiểm tra xem configuration sản phẩm có bị thay đổi không, nếu có thì thay đổi và lưu vào database
+        List<ProductConfiguration> configurationsUpdateRequest = productItemUpdateRequest.getConfigurations();
+        List<ProductConfiguration> configurations = productItem.getConfigurations();
+
+        StringBuilder sku = new StringBuilder(product.getName());
+
+        if (configurations.size() > configurationsUpdateRequest.size()) {
+            configurations.removeIf(existingConfig ->
+                    configurationsUpdateRequest
+                            .stream()
+                            .noneMatch(config ->
+                                    config.getVariationOption().getVariation().getName().equals(existingConfig.getVariationOption().getVariation().getName())
+                                            && config.getVariationOption().getValue().equals(existingConfig.getVariationOption().getValue())
+                            )
+            );
+            changed = true;
+        }
+
+        if (configurations.size() < configurationsUpdateRequest.size()) {
+            for (ProductConfiguration configurationUpdate : configurationsUpdateRequest) {
+                boolean isNewConfig = configurations
+                        .stream()
+                        .noneMatch(config ->
+                                config.getVariationOption().getVariation().getName().equals(configurationUpdate.getVariationOption().getVariation().getName())
+                                        && config.getVariationOption().getValue().equals(configurationUpdate.getVariationOption().getValue())
+                        );
+                if (isNewConfig) {
+                    configurationUpdate.setProductItem(productItem);
+                    String optionName = configurationUpdate.getVariationOption().getVariation().getName();
+                    String optionValue = configurationUpdate.getVariationOption().getValue();
+                    Integer categoryId = product.getCategory().getId();
+                    VariationOption option = variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
+                            .orElseThrow(() -> new ResourceNotFoundException("Option [%s: %s] not found".formatted(optionName, optionValue)));
+
+                    configurationUpdate.setId(new ProductConfigurationId(productItem.getId(), option.getId()));
+                    configurationUpdate.setVariationOption(option);
+                    configurations.add(configurationUpdate);
+                    changed = true;
+                }
+            }
+        }
+
+
+        if (configurations.size() == configurationsUpdateRequest.size()) {
             for (int i = 0; i < configurations.size(); i++) {
                 ProductConfiguration configuration = configurations.get(i);
                 ProductConfiguration configurationUpdateRequest = configurationsUpdateRequest.get(i);
@@ -164,7 +223,7 @@ public class ProductItemServiceImpl implements ProductItemService {
                 String optionValue = configurationUpdateRequest.getVariationOption().getValue();
                 Integer categoryId = product.getCategory().getId();
 
-                VariationOption option =  variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
+                VariationOption option = variationOptionRepository.findByCategoryIdAndVariationNameAndValue(categoryId, optionName, optionValue)
                         .orElseThrow(() -> new ResourceNotFoundException("Option [%s: %s] not found".formatted(optionName, optionValue)));
 
                 if (!productConfigurationRepository.existsByProductItemAndVariationOption(productItem, option)) {
@@ -180,13 +239,35 @@ public class ProductItemServiceImpl implements ProductItemService {
             }
         }
 
+        if (!sku.toString().equals(productItem.getSku())) {
+            productItem.setSku(sku.toString());
+            productItem.setSlug(slugify(sku.toString()));
+        }
 
         List<ProductAttribute> attributesUpdateRequest = productItemUpdateRequest.getAttributes();
-        List<ProductAttribute> attributes = productAttributeRepository.findByProductItem(productItem);
+        List<ProductAttribute> attributes = productItem.getAttributes();
 
-        if (attributes.size() != attributesUpdateRequest.size()) {
-            productItem.setAttributes(attributesUpdateRequest);
+        if (attributes.size() > attributesUpdateRequest.size()) {
+            attributes.removeIf(existingAttribute ->
+                    attributesUpdateRequest
+                            .stream()
+                            .noneMatch(attribute -> attribute.getValue().equals(existingAttribute.getValue()))
+            );
             changed = true;
+        }
+
+        if (attributes.size() < attributesUpdateRequest.size()) {
+            for (ProductAttribute attributeUpdate : attributesUpdateRequest) {
+                boolean isNewAttribute = attributes
+                        .stream()
+                        .noneMatch(attribute -> attribute.getValue().equals(attributeUpdate.getValue()));
+
+                if (isNewAttribute) {
+                    attributeUpdate.setProductItem(productItem);
+                    attributes.add(attributeUpdate);
+                    changed = true;
+                }
+            }
         } else {
             for (int i = 0; i < attributes.size(); i++) {
                 ProductAttribute attribute = attributes.get(i);
@@ -197,11 +278,6 @@ public class ProductItemServiceImpl implements ProductItemService {
                     changed = true;
                 }
             }
-        }
-
-        if (!sku.toString().equals(productItem.getSku())) {
-            productItem.setSku(sku.toString());
-            productItem.setSlug(slugify(sku.toString()));
         }
 
 //        Không có data nào thay đổi

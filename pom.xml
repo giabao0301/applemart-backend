@@ -18,6 +18,8 @@
         <module>api-gateway</module>
         <module>auth</module>
         <module>clients</module>
+        <module>order</module>
+        <module>cart</module>
     </modules>
 
     <properties>

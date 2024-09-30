@@ -27,7 +27,7 @@ public class VariationOptionServiceImpl implements VariationOptionService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product with id [%d] not found".formatted(id)));
 
-        List<ProductItem> productItems = productItemRepository.findByProductName(product.getName());
+        List<ProductItem> productItems = productItemRepository.findByProductId(product.getId());
 
         List<VariationOption> options = new ArrayList<>();
 

@@ -1,5 +1,7 @@
 package com.applemart.product;
 
+import com.applemart.product.productItem.ProductItemDTO;
+import com.applemart.product.productItem.ProductItemService;
 import com.applemart.product.response.ApiResponse;
 import com.applemart.product.response.PageResponse;
 import com.applemart.product.utils.AppConstants;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductItemService productItemService;
 
     @Operation(
             summary = "Get all product REST API",
@@ -52,10 +55,23 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ProductDTO> getProductByName(@RequestParam("name") String name) {
-        ProductDTO product = productService.getProductByName(name);
+    public ResponseEntity<ProductDTO> getProductBySlug(@RequestParam("slug") String slug) {
+        ProductDTO product = productService.getProductBySlug(slug);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
+
+
+    @GetMapping("/{id}/productItems")
+    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductSlug(@PathVariable("id") Integer id) {
+        ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(productItemService.getProductItemsByProductId(id))
+                .build();
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {

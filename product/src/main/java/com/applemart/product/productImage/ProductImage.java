@@ -1,7 +1,6 @@
 package com.applemart.product.productImage;
 
 import com.applemart.product.Product;
-import com.applemart.product.productItem.ProductItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,5 +23,4 @@ public class ProductImage {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-
 }

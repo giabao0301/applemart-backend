@@ -2,10 +2,8 @@ package com.applemart.product.productItem;
 
 import com.applemart.product.productAttribute.ProductAttributeDTO;
 import com.applemart.product.productConfiguration.ProductConfigurationDTO;
-import com.applemart.product.productImage.ProductImageDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.List;

@@ -5,7 +5,7 @@ import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.registration.token.ConfirmationToken;
 import com.applemart.auth.registration.token.ConfirmationTokenRepository;
 import com.applemart.auth.user.*;
-import com.applemart.auth.client.EmailValidationService;
+import com.applemart.auth.clients.EmailValidationService;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.utils.OTPGenerator;
@@ -33,15 +33,13 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final EmailValidationService emailValidationService;
 
     @Override
-    public void register(RegistrationRequest request) {
+    public UserDTO register(RegistrationRequest request) {
 
-        if (!emailValidationService.validateEmail(request.getEmail())) {
+        if (emailValidationService.validateEmail(request.getEmail())) {
             throw new ResourceNotFoundException("Email doesn't exist");
         }
 
         User user = userDTOMapper.toEntity(request);
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new DuplicateResourceException("Email address already in use");
@@ -51,13 +49,15 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new DuplicateResourceException("Username already exists");
         }
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         Set<Role> roles = new HashSet<>();
 
         Role role = roleRepository.findByName("USER")
                         .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         roles.add(role);
         user.setRoles(roles);
-        userRepository.save(user);
+        UserDTO userDTO = userDTOMapper.toDTO(userRepository.save(user));
 
         String token = OTPGenerator.generateOTP(6);
         ConfirmationToken confirmationToken = new ConfirmationToken(
@@ -77,6 +77,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .build();
 
         kafkaTemplate.send("notification", notificationRequest);
+
+        return userDTO;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.applemart.auth.registration;
 
+import com.applemart.auth.user.UserDTO;
+
 public interface RegistrationService {
-    void register(RegistrationRequest registration);
+    UserDTO register(RegistrationRequest registration);
     String confirmToken(String token);
 }

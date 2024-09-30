@@ -9,13 +9,12 @@ import java.util.Optional;
 
 
 public interface ProductItemRepository extends JpaRepository<ProductItem, Integer> {
-    @Query("SELECT p FROM ProductItem p WHERE p.slug = :slug")
-    Optional<ProductItem> findBySlug(@Param("slug") String slug);
+    Optional<ProductItem> findBySlug(String slug);
 
-    @Query("SELECT p FROM ProductItem p WHERE p.product.name = :productName")
-    List<ProductItem> findByProductName(@Param("productName") String productName);
+    @Query("SELECT p FROM ProductItem p WHERE p.product.id = :productId")
+    List<ProductItem> findByProductId(@Param("productId") Integer productId);
 
     boolean existsBySku(String sku);
 
-    List<ProductItem> findBySku(String sku);
+    Optional<ProductItem> findBySku(String sku);
 }

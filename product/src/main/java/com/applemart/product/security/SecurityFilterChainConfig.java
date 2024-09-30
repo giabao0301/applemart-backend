@@ -47,7 +47,7 @@ public class SecurityFilterChainConfig {
                                 .requestMatchers(
                                         HttpMethod.PUT,
                                         "/api/v1/products",
-                                        "/api/v1/productItems",
+                                        "/api/v1/productItems/**",
                                         "/api/v1/categories/**")
                                 .hasRole("ADMIN")
                                 .requestMatchers(

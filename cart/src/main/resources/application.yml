@@ -1,0 +1,43 @@
+server:
+  error:
+    include-message: always
+  port: 8082
+
+spring:
+  config:
+    import: env.properties
+  application:
+    name: cart
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    dbcp2:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+
+redis:
+  host: localhost
+  port: 6379

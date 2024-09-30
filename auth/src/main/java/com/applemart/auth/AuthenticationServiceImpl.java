@@ -45,7 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         List<String> roles = new ArrayList<>();
         user.getRoles().forEach(role -> roles.add(role.getName()));
 
-        String token = jwtUtil.issueToken(user.getUsername(), roles);
+        String token = jwtUtil.issueToken(String.valueOf(user.getId()), roles);
 
         jwtUtil.verifyToken(token);
 

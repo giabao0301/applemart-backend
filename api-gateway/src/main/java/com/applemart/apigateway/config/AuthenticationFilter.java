@@ -4,9 +4,7 @@ import com.applemart.apigateway.ApiResponse;
 import com.applemart.apigateway.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -41,7 +39,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/v1/productItems",
             "/api/v1/categories",
             "/api/v1/categories/.*",
-            "/api/v1/variationOptions"
+            "/api/v1/variationOptions",
+            "/api/v1/carts",
+            "/api/v1/carts/.*"
     };
 
     @Override

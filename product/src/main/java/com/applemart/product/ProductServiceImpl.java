@@ -70,9 +70,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductDTO getProductByName(String name) {
-        Product product = productRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Product with name [%s] not found".formatted(name)));
+    public ProductDTO getProductBySlug(String slug) {
+        Product product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with name [%s] not found".formatted(slug)));
         return productDTOMapper.toDTO(product);
     }
 
@@ -88,13 +88,13 @@ public class ProductServiceImpl implements ProductService {
 
         newProduct.setSlug(slugify(newProduct.getName()));
 
-        Category category = categoryRepository.findByName(productDTO.getCategory())
+        Category category = categoryRepository.findByUrlKey(productDTO.getCategory())
                 .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(productDTO.getCategory())));
 
         newProduct.setCategory(category);
 
-        for (ProductImage productImage : newProduct.getImages()) {
-            productImage.setProduct(newProduct);
+        for (ProductImage image : newProduct.getImages()) {
+            image.setProduct(newProduct);
         }
 
         Product savedProduct = productRepository.save(newProduct);
@@ -107,7 +107,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO updateProduct(Integer id, ProductDTO request) {
         Product productUpdateRequest = productDTOMapper.toEntity(request);
 
-        Product product = productRepository.getReferenceById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id [%d] not found".formatted(id)));
 
         boolean changed = false;
 
@@ -134,7 +135,7 @@ public class ProductServiceImpl implements ProductService {
         }
 //  end
 
-        Category category = categoryRepository.findByName(request.getCategory())
+        Category category = categoryRepository.findByUrlKey(request.getCategory())
                 .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(request.getCategory())));
 
         if (category != null && !category.getName().equals(product.getCategory().getName())) {
@@ -142,19 +143,40 @@ public class ProductServiceImpl implements ProductService {
             changed = true;
         }
 
-
         List<ProductImage> imagesUpdateRequest = productUpdateRequest.getImages();
-        List<ProductImage> images = productImageRepository.findByProduct(product);
+        List<ProductImage> images = product.getImages();
 
-        if (images.size() != imagesUpdateRequest.size()) {
-            product.setImages(imagesUpdateRequest);
-        } else {
+
+        if (images.size() > imagesUpdateRequest.size()) {
+            images.removeIf(existingImage ->
+                    imagesUpdateRequest
+                            .stream()
+                            .noneMatch(image -> image.getUrl().equals(existingImage.getUrl()))
+            );
+            changed = true;
+        }
+
+        if (images.size() < imagesUpdateRequest.size()) {
+            for (ProductImage imageUpdate : imagesUpdateRequest) {
+                boolean isNewImage = images
+                        .stream()
+                        .noneMatch(image -> image.getUrl().equals(imageUpdate.getUrl()));
+
+                if (isNewImage) {
+                    imageUpdate.setProduct(product);
+                    images.add(imageUpdate);
+                    changed = true;
+                }
+            }
+        }
+
+        if (images.size() == imagesUpdateRequest.size()) {
             for (int i = 0; i < images.size(); i++) {
                 ProductImage image = images.get(i);
-                ProductImage imageUpdateRequest = imagesUpdateRequest.get(i);
+                ProductImage imageUpdate = imagesUpdateRequest.get(i);
 
-                if (imageUpdateRequest.getUrl() != null && !imageUpdateRequest.getUrl().equals(image.getUrl())) {
-                    image.setUrl(imageUpdateRequest.getUrl());
+                if (imageUpdate != null && !image.getUrl().equals(imageUpdate.getUrl())) {
+                    image.setUrl(imageUpdate.getUrl());
                     changed = true;
                 }
             }

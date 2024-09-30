@@ -20,8 +20,20 @@ import java.util.List;
 public class ProductItemController {
     private ProductItemService productItemService;
 
-    @GetMapping("/{slug}")
-    public ResponseEntity<ApiResponse<ProductItemDTO>> getProductItemBySlug(@PathVariable("slug") String slug) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProductItemDTO>> getProductItemById(@PathVariable("id") Integer id) {
+        ApiResponse<ProductItemDTO> apiResponse = ApiResponse.<ProductItemDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(productItemService.getProductItemById(id))
+                .build();
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<ProductItemDTO>> getProductItemBySlug(@RequestParam("slug") String slug) {
         ApiResponse<ProductItemDTO> apiResponse = ApiResponse.<ProductItemDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
@@ -30,18 +42,6 @@ public class ProductItemController {
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductName(@RequestParam("productName") String productName) {
-        ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
-                .status(HttpStatus.OK.value())
-                .message("OK")
-                .data(productItemService.getProductItemsByProductName(productName))
-                .build();
-
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-    }
-
 
     @PostMapping
     public ResponseEntity<ProductItemDTO> createProductItem(@RequestBody @Valid ProductItemDTO request) {

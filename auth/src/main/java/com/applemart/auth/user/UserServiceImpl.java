@@ -1,6 +1,6 @@
 package com.applemart.auth.user;
 
-import com.applemart.auth.client.EmailValidationService;
+import com.applemart.auth.clients.EmailValidationService;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
@@ -56,10 +56,10 @@ public class UserServiceImpl implements UserService {
     private User getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String name = authentication.getName();
+        String id = authentication.getName();
 
-        return userRepository.findByUsername(name)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findById(Integer.parseInt(id))
+                .orElseThrow(() -> new ResourceNotFoundException("User with id [%s] not found".formatted(id)));
     }
 
     @Override
@@ -90,13 +90,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDTO getUserProfile() {
         return userDTOMapper.toDTO(getLoggedInUser());
     }
 
     @Override
     @Transactional
-    @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
+    @PostAuthorize("returnObject.id.toString() == authentication.name or hasRole('ADMIN')")
     public UserDTO getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found".formatted(id)));
@@ -104,8 +105,8 @@ public class UserServiceImpl implements UserService {
         return userDTOMapper.toDTO(user);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public UserDTO getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email [%s] not found".formatted(email)));
@@ -117,7 +118,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(UserCreationRequest request) {
 
-        if (!emailValidationService.validateEmail(request.getEmail())) {
+        if (emailValidationService.validateEmail(request.getEmail())) {
             throw new ResourceNotFoundException("Email doesn't exist");
         }
 
@@ -145,9 +146,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
+    @PostAuthorize("returnObject.id == authentication.name or hasRole('ADMIN')")
     public UserDTO updateUser(Integer id, UserUpdateRequest request) {
-        if (!emailValidationService.validateEmail(request.getEmail())) {
+        if (emailValidationService.validateEmail(request.getEmail())) {
             throw new ResourceNotFoundException("Email doesn't exist");
         }
 

@@ -1,8 +1,6 @@
 package com.applemart.product;
 
 import com.applemart.product.productImage.ProductImageDTO;
-import com.applemart.product.productItem.ProductItem;
-import com.applemart.product.productItem.ProductItemDTO;
 import lombok.Data;
 
 import java.util.List;

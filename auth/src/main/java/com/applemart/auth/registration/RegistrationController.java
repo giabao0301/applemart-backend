@@ -1,5 +1,6 @@
 package com.applemart.auth.registration;
 
+import com.applemart.auth.user.UserDTO;
 import com.applemart.auth.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,9 +35,9 @@ public class RegistrationController {
     @PostMapping(value = {"/register", "/signup"})
     public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) {
 
-        registrationService.register(request);
+        UserDTO user = registrationService.register(request);
 
-        String jwtToken = jwtUtil.issueToken(request.getUsername(), "USER");
+        String jwtToken = jwtUtil.issueToken(String.valueOf(user.getId()), "USER");
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)

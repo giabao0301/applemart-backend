@@ -1,4 +1,4 @@
-package com.applemart.auth.client;
+package com.applemart.auth.clients;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
