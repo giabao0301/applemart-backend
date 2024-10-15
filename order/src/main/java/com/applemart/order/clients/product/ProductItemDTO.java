@@ -16,7 +16,7 @@ import java.util.List;
 public class ProductItemDTO {
     private Integer id;
     private String productName;
-    private String sku;
+    private String name;
 
     @Min(value = 0, message = "Product quantity is invalid")
     private Integer quantity;

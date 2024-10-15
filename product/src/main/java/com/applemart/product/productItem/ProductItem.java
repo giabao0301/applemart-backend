@@ -3,9 +3,6 @@ package com.applemart.product.productItem;
 import com.applemart.product.Product;
 import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productConfiguration.ProductConfiguration;
-import com.applemart.product.productImage.ProductImage;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +27,7 @@ public class ProductItem {
 
     private String imageUrl;
 
-    private String sku;
+    private String name;
 
     @Column(name = "qty_in_stock")
     private Integer quantity;

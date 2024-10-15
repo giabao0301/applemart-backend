@@ -1,4 +1,4 @@
-package com.applemart.cart;
+package com.applemart.cart.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

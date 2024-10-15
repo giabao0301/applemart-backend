@@ -16,7 +16,7 @@ CREATE TABLE product (
     category_id INT NOT NULL,
     lowest_price DOUBLE NOT NULL, 
     thumbnail_url VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
 	description text,
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
@@ -24,7 +24,7 @@ CREATE TABLE product (
 CREATE TABLE product_item (
 	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     product_id	INT NOT NULL,
-    sku VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     qty_in_stock INT NOT NULL,
     price DOUBLE NOT NULL, 
     image_url VARCHAR(255) NOT NULL,

@@ -8,6 +8,7 @@ import com.applemart.order.clients.product.ProductItemService;
 import com.applemart.order.common.PageResponse;
 import com.applemart.order.exception.RequestValidationException;
 import com.applemart.order.exception.ResourceNotFoundException;
+import com.applemart.order.orderLine.OrderLine;
 import com.applemart.order.payment.*;
 import com.applemart.order.shipping.ShippingMethod;
 import com.applemart.order.shipping.ShippingMethodRepository;
@@ -19,13 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 

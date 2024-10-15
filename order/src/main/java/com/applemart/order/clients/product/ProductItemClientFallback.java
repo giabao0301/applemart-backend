@@ -14,7 +14,7 @@ public class ProductItemClientFallback implements ProductItemClient {
         ProductItemDTO defaultProductItem = ProductItemDTO.builder()
                 .id(-1)
                 .productName("Default Product")
-                .sku("Default Name")
+                .name("Default Name")
                 .quantity(0)
                 .price(0.0)
                 .imageUrl("https://cdn.icon-icons.com/icons2/1678/PNG/512/wondicon-ui-free-parcel_111208.png")

@@ -1,8 +1,6 @@
 package com.applemart.order;
 
-import com.applemart.order.payment.PaymentMethod;
-import com.applemart.order.shipping.ShippingMethod;
-import jakarta.persistence.*;
+import com.applemart.order.orderLine.OrderLineDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;

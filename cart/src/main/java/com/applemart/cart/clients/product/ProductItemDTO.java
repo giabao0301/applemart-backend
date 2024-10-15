@@ -15,7 +15,7 @@ import java.util.List;
 public class ProductItemDTO {
     private Integer id;
     private String productName;
-    private String sku;
+    private String name;
     private Integer quantity;
     private Double price;
     private String imageUrl;

@@ -96,7 +96,7 @@ public class ProductItemServiceImpl implements ProductItemService {
 
         newProductItem.setProduct(product);
 
-        StringBuilder sku = new StringBuilder(product.getName());
+        StringBuilder name = new StringBuilder(product.getName());
 
         for (ProductConfiguration configuration : newProductItem.getConfigurations()) {
 
@@ -112,21 +112,21 @@ public class ProductItemServiceImpl implements ProductItemService {
             configuration.setProductItem(newProductItem);
 
             if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
-                sku.append("/").append(optionValue);
+                name.append("/").append(optionValue);
             } else {
-                sku.append(" ").append(optionValue);
+                name.append(" ").append(optionValue);
             }
         }
 
-        if (productItemRepository.existsBySku(sku.toString())) {
-            throw new DuplicateResourceException("Product item [%s] already exists".formatted(sku));
+        if (productItemRepository.existsByName(name.toString())) {
+            throw new DuplicateResourceException("Product item [%s] already exists".formatted(name));
         }
 
-//      Tạo sku từ tên sản phẩm và các option
-        newProductItem.setSku(sku.toString());
+//      Tạo name từ tên sản phẩm và các option
+        newProductItem.setName(name.toString());
 
-//      Tự tạo slug từ tên của sku
-        newProductItem.setSlug(slugify(newProductItem.getSku()));
+//      Tự tạo slug từ tên của name
+        newProductItem.setSlug(slugify(newProductItem.getName()));
 
         for (ProductAttribute productAttribute : newProductItem.getAttributes()) {
             productAttribute.setProductItem(newProductItem);
@@ -173,7 +173,7 @@ public class ProductItemServiceImpl implements ProductItemService {
         List<ProductConfiguration> configurationsUpdateRequest = productItemUpdateRequest.getConfigurations();
         List<ProductConfiguration> configurations = productItem.getConfigurations();
 
-        StringBuilder sku = new StringBuilder(product.getName());
+        StringBuilder name = new StringBuilder(product.getName());
 
         if (configurations.size() > configurationsUpdateRequest.size()) {
             configurations.removeIf(existingConfig ->
@@ -230,16 +230,16 @@ public class ProductItemServiceImpl implements ProductItemService {
                 }
 
                 if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
-                    sku.append("/").append(optionValue);
+                    name.append("/").append(optionValue);
                 } else {
-                    sku.append(" ").append(optionValue);
+                    name.append(" ").append(optionValue);
                 }
             }
         }
 
-        if (!sku.toString().equals(productItem.getSku())) {
-            productItem.setSku(sku.toString());
-            productItem.setSlug(slugify(sku.toString()));
+        if (!name.toString().equals(productItem.getName())) {
+            productItem.setName(name.toString());
+            productItem.setSlug(slugify(name.toString()));
         }
 
         List<ProductAttribute> attributesUpdateRequest = productItemUpdateRequest.getAttributes();

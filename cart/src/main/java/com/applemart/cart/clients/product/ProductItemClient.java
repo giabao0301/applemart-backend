@@ -1,7 +1,7 @@
 package com.applemart.cart.clients.product;
 
 
-import com.applemart.cart.ApiResponse;
+import com.applemart.cart.common.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

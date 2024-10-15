@@ -260,7 +260,7 @@ VALUES (1, 1,
 
 
 INSERT INTO product_item
-(id, product_id, sku, qty_in_stock, price, image_url, slug)
+(id, product_id, name, qty_in_stock, price, image_url, slug)
 VALUES (1, 1, 'MacBook Air 13 inch M2 Đêm Xanh Thẳm 8GB/256GB', 27, 24999000,
         'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=95&.v=1708367688034',
         'macbook-air-13-inch-m2-dem-xanh-tham-8gb-256gb'),

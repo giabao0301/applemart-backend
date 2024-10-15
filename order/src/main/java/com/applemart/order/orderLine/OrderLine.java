@@ -1,5 +1,6 @@
-package com.applemart.order;
+package com.applemart.order.orderLine;
 
+import com.applemart.order.Order;
 import jakarta.persistence.*;
 import lombok.*;
 

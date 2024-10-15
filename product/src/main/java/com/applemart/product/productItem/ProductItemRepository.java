@@ -14,7 +14,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Intege
     @Query("SELECT p FROM ProductItem p WHERE p.product.id = :productId")
     List<ProductItem> findByProductId(@Param("productId") Integer productId);
 
-    boolean existsBySku(String sku);
+    boolean existsByName(String name);
 
-    Optional<ProductItem> findBySku(String sku);
+    Optional<ProductItem> findByName(String name);
 }

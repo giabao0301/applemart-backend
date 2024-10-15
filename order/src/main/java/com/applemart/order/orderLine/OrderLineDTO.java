@@ -1,4 +1,4 @@
-package com.applemart.order;
+package com.applemart.order.orderLine;
 
 import lombok.Data;
 

@@ -1,5 +1,6 @@
 package com.applemart.order;
 
+import com.applemart.order.orderLine.OrderLine;
 import com.applemart.order.payment.PaymentMethod;
 import com.applemart.order.shipping.ShippingMethod;
 import jakarta.persistence.*;
