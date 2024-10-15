@@ -1,9 +1,6 @@
 package com.applemart.auth;
 
-import com.applemart.auth.exception.ResourceNotFoundException;
-import com.applemart.auth.registration.RegistrationService;
 import com.applemart.auth.user.User;
-import com.applemart.auth.user.UserRepository;
 import com.applemart.auth.user.UserService;
 import com.applemart.auth.utils.JWTUtil;
 import com.nimbusds.jose.JOSEException;
@@ -17,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service

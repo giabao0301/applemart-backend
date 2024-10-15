@@ -1,6 +1,6 @@
 package com.applemart.auth;
 
-import com.applemart.auth.response.ApiResponse;
+import com.applemart.auth.common.ApiResponse;
 import com.nimbusds.jose.JOSEException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

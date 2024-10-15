@@ -37,7 +37,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(
         basePackages = {
                 "com.applemart.auth",
-                "com.applemart.clients"
         }
 )
 public class AuthApplication {

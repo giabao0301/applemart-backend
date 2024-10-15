@@ -1,6 +1,6 @@
 package com.applemart.product.category;
 
-import com.applemart.product.response.ApiResponse;
+import com.applemart.product.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

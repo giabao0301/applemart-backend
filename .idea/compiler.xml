@@ -9,7 +9,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="notification" />
         <module name="product" />
-        <module name="clients" />
         <module name="auth" />
         <module name="api-gateway" />
         <module name="eureka-server" />
@@ -18,6 +17,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="clients" target="17" />
       <module name="kafka" target="17" />
     </bytecodeTargetLevel>
   </component>

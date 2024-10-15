@@ -1,7 +1,6 @@
 package com.applemart.auth.user;
 
-import com.applemart.auth.registration.RegistrationRequest;
-import com.applemart.auth.response.PageResponse;
+import com.applemart.auth.common.PageResponse;
 import com.applemart.auth.user.address.AddressDTO;
 
 import java.util.List;
@@ -19,6 +18,7 @@ public interface UserService {
 
 //    for user address
     List<AddressDTO> getAddress();
+    AddressDTO getAddressById(Integer id);
     AddressDTO addAddress(AddressDTO request);
     AddressDTO updateAddress(Integer id, AddressDTO request);
     void deleteAddressById(Integer id);

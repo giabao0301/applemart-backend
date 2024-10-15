@@ -8,16 +8,17 @@ spring:
     import: env.properties
   application:
     name: cart
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    dbcp2:
-      driver-class-name: com.mysql.cj.jdbc.Driver
+
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    open-in-view: false
+#  datasource:
+#    url: ${DB_URL}
+#    username: ${DB_USER}
+#    password: ${DB_PASSWORD}
+#    dbcp2:
+#      driver-class-name: com.mysql.cj.jdbc.Driver
 
 eureka:
   client:
@@ -37,7 +38,7 @@ springdoc:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-
+  
 redis:
   host: localhost
   port: 6379

@@ -1,12 +1,13 @@
 package com.applemart.auth.user;
 
 import com.applemart.auth.clients.EmailValidationService;
+import com.applemart.auth.common.NotificationRequest;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.registration.token.ConfirmationToken;
 import com.applemart.auth.registration.token.ConfirmationTokenRepository;
-import com.applemart.auth.response.PageResponse;
+import com.applemart.auth.common.PageResponse;
 import com.applemart.auth.user.address.Address;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.user.address.AddressDTOMapper;
@@ -14,7 +15,6 @@ import com.applemart.auth.user.address.AddressRepository;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.utils.OTPGenerator;
-import com.applemart.clients.notification.NotificationRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -261,6 +261,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public AddressDTO getAddressById(Integer id) {
+
+        User user = getLoggedInUser();
+
+        Address address = addressRepository.findByUserIdAndAddressId(user.getId(), id)
+                .orElseThrow(() -> new ResourceNotFoundException("Address with id [%d] not found".formatted(id)));
+
+        return addressDTOMapper.toDTO(address);
+    }
+
+    @Override
     public AddressDTO addAddress(AddressDTO request) {
         Address address = addressDTOMapper.toEntity(request);
 
@@ -274,7 +285,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AddressDTO updateAddress(Integer id, AddressDTO request) {
-        Address address = addressRepository.findById(id)
+        User user = getLoggedInUser();
+
+        Address address = addressRepository.findByUserIdAndAddressId(user.getId(), id)
                 .orElseThrow(() -> new ResourceNotFoundException("Address with id [%d] not found".formatted(id)));
 
         Address addressUpdateRequest = addressDTOMapper.toEntity(request);
@@ -329,14 +342,8 @@ public class UserServiceImpl implements UserService {
     public void deleteAddressById(Integer id) {
         User user = getLoggedInUser();
 
-        List<Address> addresses = addressRepository.findByUser(user);
-
-        Address address = addressRepository.findById(id)
+        Address address = addressRepository.findByUserIdAndAddressId(user.getId(), id)
                 .orElseThrow(() -> new ResourceNotFoundException("Address with id [%d] not found".formatted(id)));
-
-        if (!addresses.contains(address)) {
-            throw new AccessDeniedException("You don't have permission to delete this address");
-        }
 
         addressRepository.delete(address);
     }

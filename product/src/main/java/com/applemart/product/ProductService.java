@@ -1,6 +1,6 @@
 package com.applemart.product;
 
-import com.applemart.product.response.PageResponse;
+import com.applemart.product.common.PageResponse;
 
 public interface ProductService {
     PageResponse<ProductDTO> getAllProducts(int page, int size, String sort, String dir);

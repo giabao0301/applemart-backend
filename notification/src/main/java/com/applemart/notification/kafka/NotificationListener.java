@@ -1,6 +1,6 @@
 package com.applemart.notification.kafka;
 
-import com.applemart.clients.notification.NotificationRequest;
+import com.applemart.notification.NotificationRequest;
 import com.applemart.notification.NotificationService;
 import com.applemart.notification.email.EmailDetails;
 import com.applemart.notification.email.EmailService;

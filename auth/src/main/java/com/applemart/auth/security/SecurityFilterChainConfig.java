@@ -38,6 +38,7 @@ public class SecurityFilterChainConfig {
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.GET,
+                                        "/api/v1/users/addresses/**",
                                         "/api/v1/auth/registration/confirm",
                                         "/api/v1/auth/signup/confirm",
                                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")

@@ -1,5 +1,6 @@
 package com.applemart.auth.registration;
 
+import com.applemart.auth.common.NotificationRequest;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.registration.token.ConfirmationToken;
@@ -9,7 +10,6 @@ import com.applemart.auth.clients.EmailValidationService;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.utils.OTPGenerator;
-import com.applemart.clients.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;

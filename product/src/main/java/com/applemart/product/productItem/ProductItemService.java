@@ -1,8 +1,5 @@
 package com.applemart.product.productItem;
 
-import com.applemart.product.response.PageResponse;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 
 public interface ProductItemService {

@@ -1,11 +1,11 @@
 server:
   error:
     include-message: always
-  port: 8082
+  port: 8083
 
 spring:
-#  config:
-#    import: env.properties
+  config:
+    import: env.properties
   application:
     name: order
   jpa:
@@ -37,3 +37,13 @@ springdoc:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+
+payment:
+  vnPay:
+    url: ${PAY_URL}
+    tmnCode: ${TMN_CODE}
+    secretKey: ${SECRET_KEY}
+    returnUrl: ${RETURN_URL}
+    version: ${VERSION}
+    command: ${COMMAND}
+    orderType: ${ORDER_TYPE}

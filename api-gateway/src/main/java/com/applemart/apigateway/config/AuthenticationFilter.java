@@ -41,7 +41,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/v1/categories/.*",
             "/api/v1/variationOptions",
             "/api/v1/carts",
-            "/api/v1/carts/.*"
+            "/api/v1/carts/.*",
+            "/api/v1/orders",
+            "/api/v1/orders/.*",
+            "/api/v1/payment/.*"
     };
 
     @Override

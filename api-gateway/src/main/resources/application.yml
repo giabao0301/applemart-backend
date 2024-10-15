@@ -19,6 +19,10 @@ spring:
           uri: lb://CART
           predicates:
             - Path=/api/v1/carts/**
+        - id: order
+          uri: lb://ORDER
+          predicates:
+            - Path=/api/v1/orders/**, /api/v1/payment/**
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

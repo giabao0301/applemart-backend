@@ -1,7 +1,5 @@
 package com.applemart.notification;
 
-import com.applemart.clients.notification.NotificationRequest;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

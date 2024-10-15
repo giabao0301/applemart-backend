@@ -2,8 +2,8 @@ package com.applemart.product;
 
 import com.applemart.product.productItem.ProductItemDTO;
 import com.applemart.product.productItem.ProductItemService;
-import com.applemart.product.response.ApiResponse;
-import com.applemart.product.response.PageResponse;
+import com.applemart.product.common.ApiResponse;
+import com.applemart.product.common.PageResponse;
 import com.applemart.product.utils.AppConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

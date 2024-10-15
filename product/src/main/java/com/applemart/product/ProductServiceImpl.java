@@ -5,14 +5,8 @@ import com.applemart.product.category.CategoryRepository;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
-import com.applemart.product.productAttribute.ProductAttribute;
 import com.applemart.product.productImage.ProductImage;
-import com.applemart.product.productImage.ProductImageRepository;
-import com.applemart.product.productItem.ProductItem;
-import com.applemart.product.response.PageResponse;
-import com.applemart.product.variation.Variation;
-import com.applemart.product.variation.VariationRepository;
-import com.applemart.product.variationOption.VariationOption;
+import com.applemart.product.common.PageResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.applemart.product.utils.SlugConverter.slugify;
@@ -33,7 +26,6 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final ProductDTOMapper productDTOMapper;
-    private final ProductImageRepository productImageRepository;
 
     @Override
     @Transactional

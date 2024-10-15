@@ -1,7 +1,7 @@
 package com.applemart.auth.user;
 
-import com.applemart.auth.response.ApiResponse;
-import com.applemart.auth.response.PageResponse;
+import com.applemart.auth.common.ApiResponse;
+import com.applemart.auth.common.PageResponse;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.utils.AppConstants;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -93,6 +93,16 @@ public class UserController {
     @GetMapping("/addresses")
     public ResponseEntity<List<AddressDTO>> getAddress() {
         return new ResponseEntity<>(userService.getAddress(), HttpStatus.OK);
+    }
+
+    @GetMapping("/addresses/{id}")
+    public ResponseEntity<ApiResponse<AddressDTO>> getAddressById(@PathVariable("id") Integer id) {
+        ApiResponse<AddressDTO> apiResponse = ApiResponse.<AddressDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(userService.getAddressById(id))
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @PostMapping("/addresses")

@@ -1,17 +1,12 @@
 package com.applemart.product.productItem;
 
 
-import com.applemart.product.ProductDTO;
-import com.applemart.product.response.ApiResponse;
-import com.applemart.product.response.PageResponse;
-import com.applemart.product.utils.AppConstants;
+import com.applemart.product.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @AllArgsConstructor
