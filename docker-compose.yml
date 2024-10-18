@@ -13,6 +13,22 @@ services:
     networks:
       - mysql
     restart: unless-stopped
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    ports:
+      - "3100:3000"
   zipkin:
     container_name: zipkin
     image: openzipkin/zipkin

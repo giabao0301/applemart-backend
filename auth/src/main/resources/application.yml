@@ -44,6 +44,15 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}

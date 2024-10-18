@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,7 @@ import java.util.List;
 @RequestMapping("api/v1/products")
 public class ProductController {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
     private final ProductService productService;
     private final ProductItemService productItemService;
 
@@ -38,8 +41,8 @@ public class ProductController {
             @RequestParam(value = "sort", required = false, defaultValue = AppConstants.DEFAULT_SORT_BY) String sort,
             @RequestParam(value = "dir", required = false, defaultValue = AppConstants.DEFAULT_SORT_DIRECTION) String dir
     ) {
+        log.info("Get all products REST API");
         PageResponse<ProductDTO> products = productService.getAllProducts(page, size, sort, dir);
-
         ApiResponse<PageResponse<ProductDTO>> apiResponse = ApiResponse.<PageResponse<ProductDTO>>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")

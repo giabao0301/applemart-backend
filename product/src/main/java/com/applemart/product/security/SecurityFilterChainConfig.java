@@ -29,6 +29,8 @@ public class SecurityFilterChainConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
                         requests
+                                .requestMatchers("/actuator/**")
+                                .permitAll()
                                 .requestMatchers(
                                         HttpMethod.GET,
                                         "/api/v1/products/**",

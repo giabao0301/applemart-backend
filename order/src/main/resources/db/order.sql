@@ -10,7 +10,7 @@ CREATE TABLE shipping_method (
 CREATE TABLE payment_method (
 	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    type VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     provider VARCHAR(255),
     account_number VARCHAR(50),
     expiry_date DATE,

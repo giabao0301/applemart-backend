@@ -1,28 +1,18 @@
 server:
   error:
     include-message: always
-  port: 8081
+  port: 8082
 
 spring:
   config:
     import: env.properties
   application:
-    name: product
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    dbcp2:
-      driver-class-name: com.mysql.cj.jdbc.Driver
+    name: cart
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
 
@@ -30,10 +20,13 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  zipkin:
+    tracing:
+    endpoint: http://zipkin:9411
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,prometheus
   endpoint:
     prometheus:
       enabled: true
@@ -46,3 +39,7 @@ springdoc:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+  
+redis:
+  host: redis
+  port: 6379

@@ -18,6 +18,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="clients" target="17" />
+      <module name="config-server" target="17" />
       <module name="kafka" target="17" />
     </bytecodeTargetLevel>
   </component>
