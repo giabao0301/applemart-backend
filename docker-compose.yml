@@ -144,6 +144,7 @@ services:
       - eureka-server
       - redis
       - kafka
+
 networks:
   mysql:
     driver: bridge

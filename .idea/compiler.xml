@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="notification" />
+        <module name="config-server" />
         <module name="product" />
         <module name="auth" />
         <module name="api-gateway" />
@@ -18,7 +19,6 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="clients" target="17" />
-      <module name="config-server" target="17" />
       <module name="kafka" target="17" />
     </bytecodeTargetLevel>
   </component>

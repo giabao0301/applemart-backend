@@ -1,0 +1,25 @@
+<configuration>
+    <springProperty name="appName" source="spring.application.name" /> <!-- Retrieve app name from application.yml -->
+
+    <property name="LOG_PATTERN"
+              value="%date  %highlight(%-5level) [%thread] %cyan(%-40.40logger{40}) : %msg %n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5000</destination>  <!-- Use <destination> to define Logstash host and port -->
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app_name": "${appName}"}</customFields>  <!-- Use the spring property 'appName' for app_name -->
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="LOGSTASH" />
+    </root>
+</configuration>

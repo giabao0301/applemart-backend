@@ -3,7 +3,7 @@ server:
 
 spring:
   config:
-    import: env.properties
+    import: optional:configserver:env.properties
   application:
     name: notification
   jpa:
