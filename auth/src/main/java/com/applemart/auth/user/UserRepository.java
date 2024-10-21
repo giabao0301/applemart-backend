@@ -16,8 +16,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
     Optional<User> findByPhoneNumber(String phoneNumber);
 
-
-
     boolean existsByUsername(String username);
     boolean existsByPhoneNumber(String phoneNumber);
     boolean existsByEmail(String email);
@@ -28,4 +26,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "SET u.enabled = TRUE WHERE u.id = :id ")
     void enableUser(@Param("id") Integer id);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u " +
+            "SET u.password = :password WHERE u.id = :id ")
+    void updateUserPassword(@Param("id") Integer id, @Param("password") String password);
 }

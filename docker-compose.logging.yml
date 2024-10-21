@@ -18,7 +18,7 @@ services:
     healthcheck:
       interval: 30s
       retries: 10
-      test: [ "CMD-SHELL", "curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null --user elastic:elastic http://localhost:9200" ]
+      test: [ "CMD-SHELL", "curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null --user elastic:${ELASTIC_PASSWORD} http://localhost:9200" ]
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
@@ -32,7 +32,7 @@ services:
     ports:
       - "5601:5601"
     command: >
-      bash -c "curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null --user elastic:elastic http://elasticsearch:9200/_security/user/kibana_system/_password -H 'Content-Type: application/json' -d '{\"password\": \"kibana_system\"}' && /usr/local/bin/kibana-docker"
+      bash -c "curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null --user elastic:${ELASTIC_PASSWORD} http://elasticsearch:9200/_security/user/kibana_system/_password -H 'Content-Type: application/json' -d '{\"password\": \"${KIBANA_PASSWORD}\"}' && /usr/local/bin/kibana-docker"
     depends_on:
       elasticsearch:
         condition: service_healthy

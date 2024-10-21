@@ -17,11 +17,11 @@ public class UserCreationRequest {
     @Username
     private String username;
 
-    @NotBlank(message = "Password can't be blank")
+    @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
-    @NotNull(message = "Email can't be null")
+    @NotNull(message = "Email is required")
     @Email(message = "Invalid email")
     private String email;
 
@@ -35,6 +35,6 @@ public class UserCreationRequest {
 
     private LocalDate dateOfBirth;
 
-    @NotNull(message = "User role can't be null")
+    @NotNull(message = "User role is required")
     private Set<Role> roles;
 }
