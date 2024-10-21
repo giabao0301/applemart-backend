@@ -3,7 +3,7 @@ server:
 
 spring:
   config:
-    import: optional:configserver:env.properties
+    import: env.properties
   application:
     name: notification
   jpa:
@@ -16,6 +16,9 @@ spring:
     password: ${DB_PASSWORD}
     dbcp2:
       driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    config:
+      enabled: false
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
