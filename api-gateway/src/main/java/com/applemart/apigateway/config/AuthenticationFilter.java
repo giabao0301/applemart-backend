@@ -9,13 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -50,26 +50,39 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info("Enter authentication filter....");
+        log.info("Entering authentication filter...");
 
-        if (isPublicEndpoint(exchange.getRequest()))
+        if (isPublicEndpoint(exchange.getRequest())) {
             return chain.filter(exchange);
+        }
 
-
-        // Get token from authorization header
-        List<String> authHeaders = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
-        if (CollectionUtils.isEmpty(authHeaders))
+        // Extract the token from the "accessToken" cookie
+        String token = extractTokenFromCookie(exchange.getRequest());
+        if (token == null) {
+            log.info("No access token found in cookies");
             return unauthenticated(exchange.getResponse());
+        }
+        log.info("Token extracted from cookie: {}", token);
 
-        String token = authHeaders.get(0).replace("Bearer ", "");
-        log.info("Token: {}", token);
-
+        // Introspect the token
         return authService.introspect(token).flatMap(introspectResponse -> {
-            if (introspectResponse.getData().getIsValid())
+            if (introspectResponse.getData().getIsValid()) {
                 return chain.filter(exchange);
-            else
+            } else {
                 return unauthenticated(exchange.getResponse());
-        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+            }
+        }).onErrorResume(throwable -> {
+            log.error("Error during token introspection", throwable);
+            return unauthenticated(exchange.getResponse());
+        });
+    }
+
+    private String extractTokenFromCookie(ServerHttpRequest request) {
+        List<HttpCookie> cookies = request.getCookies().get("accessToken");
+        if (cookies != null && !cookies.isEmpty()) {
+            return cookies.get(0).getValue();
+        }
+        return null;
     }
 
     @Override
@@ -82,14 +95,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 .anyMatch(s -> request.getURI().getPath().matches(s));
     }
 
-    Mono<Void> unauthenticated(ServerHttpResponse response){
+    private Mono<Void> unauthenticated(ServerHttpResponse response) {
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .status(401)
                 .message("UNAUTHENTICATED")
                 .build();
 
         String body;
-
         try {
             body = objectMapper.writeValueAsString(apiResponse);
         } catch (JsonProcessingException e) {
@@ -100,6 +112,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
         return response.writeWith(
-                Mono.just(response.bufferFactory().wrap(body.getBytes())));
+                Mono.just(response.bufferFactory().wrap(body.getBytes()))
+        );
     }
 }

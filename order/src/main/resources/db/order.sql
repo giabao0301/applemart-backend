@@ -40,3 +40,12 @@ CREATE TABLE order_line (
     FOREIGN KEY (order_id) REFERENCES `order`(id)
 );
 
+
+insert into `order`.shipping_method values(1, "Tiết kiệm", 20000);
+insert into `order`.shipping_method values(2, "Nhanh", 50000);
+insert into `order`.shipping_method values(3, "Hỏa tốc", 1000000);
+
+insert into `order`.payment_method(id, name, is_default) values (1, "cod", 1);
+insert into `order`.payment_method(id, user_id, name, provider, account_number, expiry_date, is_default) values (2, 2, "vnpay", "NCB", 1018492016, NOW(), 0);
+
+select * from `order`.payment_method where name = 'COD'

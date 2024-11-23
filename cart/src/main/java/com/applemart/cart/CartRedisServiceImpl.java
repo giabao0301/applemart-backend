@@ -1,5 +1,6 @@
 package com.applemart.cart;
 
+import com.applemart.cart.clients.product.CartItem;
 import com.applemart.cart.clients.product.ProductItemDTO;
 import com.applemart.cart.clients.product.ProductItemService;
 import com.applemart.cart.exception.RequestValidationException;
@@ -34,66 +35,56 @@ public class CartRedisServiceImpl extends BaseRedisServiceImpl implements CartRe
         return userId.equals(authenticatedUserId);
     }
 
-    public List<ProductItemDTO> getProductsFromCartByUserId(String userId) {
-        String key = CART_KEY_PREFIX + userId;
+    public List<CartItem> getProductsFromCartByUserId(String userId) {
+        if (!isAuthorized(userId)) {
+            throw new AccessDeniedException("You are not authorized to see this cart");
+        }
 
-        Map<String, Object> products = getField(key);
+        String cartKey = CART_KEY_PREFIX + userId;
+        String idsKey = cartKey + ":ids";
 
-        List<ProductItemDTO> productItemDTOList = new ArrayList<>();
+        Map<String, Object> products = getField(cartKey);
+        Map<String, Object> ids = getField(idsKey);
+
+        List<CartItem> cartItems = new ArrayList<>();
         for (Map.Entry<String, Object> entry : products.entrySet()) {
-            String[] arrKey = entry.getKey().split(":");
+            String fieldKey = entry.getKey();
 
-            ProductItemDTO productItem = productItemService.getProductItemById(arrKey[1]);
-
+            ProductItemDTO productItem = productItemService.getProductItemById(fieldKey.split(":")[1]);
             if (productItem != null) {
-                int quantity = (int) hashGet(key, entry.getKey());
-                productItem.setQuantity(quantity);
-                productItemDTOList.add(productItem);
+                CartItem cartItem = new CartItem();
+                cartItem.setProductItem(productItem);
+                cartItem.setQuantity((Integer) entry.getValue());
+                cartItem.setId((Integer) ids.get(fieldKey));
+                cartItems.add(cartItem);
             }
         }
 
-        if (productItemDTOList.isEmpty()) {
-            throw new ResourceNotFoundException("No product items found in cart");
-        }
+        cartItems.sort(Comparator.comparing(CartItem::getId).reversed());
 
-        productItemDTOList.sort(Comparator.comparing(ProductItemDTO::getId));
-        return productItemDTOList;
+        return cartItems;
     }
 
-    public void addProductToCart(String userId, CartItemRequest cartItemRequest) {
 
+    public void addProductToCart(String userId, CartItemRequest cartItemRequest) {
         if (!isAuthorized(userId)) {
             throw new AccessDeniedException("You are not authorized to modify this cart");
         }
 
-        String key = CART_KEY_PREFIX + userId;
+        String cartKey = CART_KEY_PREFIX + userId;
+        String idsKey = cartKey + ":ids";
+        String fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + cartItemRequest.getProductItemId();
 
-        String fieldKey;
-
-        Integer quantity;
-
-        if (Objects.nonNull(cartItemRequest.getItems())) {
-            for (Map.Entry<String, Integer> entry : cartItemRequest.getItems().entrySet()) {
-                ProductItemDTO productItem = productItemService.getProductItemById(entry.getKey());
-
-                if (productItem != null) {
-                    quantity = entry.getValue();
-                    if (quantity > productItem.getQuantity()) {
-                        throw new RequestValidationException("Requested quantity exceeds the maximum quantity");
-                    }
-                }
-
-                fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + entry.getKey();
-
-                if (hashExist(key, fieldKey)) {
-                    quantity = (Integer) this.hashGet(key, fieldKey) + entry.getValue();
-                } else {
-                    quantity = entry.getValue();
-                }
-                this.hashSet(key, fieldKey, quantity);
-            }
+        if (!hashExist(idsKey, fieldKey)) {
+            Long id = increment(cartKey + ":id-counter");
+            hashSet(idsKey, fieldKey, id);
         }
+
+        Integer quantity = (Integer) this.hashGet(cartKey, fieldKey);
+        quantity = (quantity == null ? 0 : quantity) + cartItemRequest.getQuantity();
+        hashSet(cartKey, fieldKey, quantity);
     }
+
 
     @Override
     public void updateProductInCart(String userId, CartItemRequest cartItemRequest) {
@@ -101,27 +92,33 @@ public class CartRedisServiceImpl extends BaseRedisServiceImpl implements CartRe
         if (!isAuthorized(userId)) {
             throw new AccessDeniedException("You are not authorized to modify this cart");
         }
-        String key = CART_KEY_PREFIX + userId;
+
+        String cartKey = CART_KEY_PREFIX + userId;
 
         String fieldKey;
 
         Integer quantity;
 
-        if (Objects.nonNull(cartItemRequest.getItems())) {
-            for (Map.Entry<String, Integer> entry : cartItemRequest.getItems().entrySet()) {
-                fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + entry.getKey();
-                quantity = entry.getValue();
-                if (quantity <= 0) {
-                    delete(key, fieldKey);
-                } else {
-                    hashSet(key, fieldKey, quantity);
-                }
-            }
+        String idsKey = cartKey + ":ids";
+
+        fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + cartItemRequest.getProductItemId();
+        quantity = cartItemRequest.getQuantity();
+
+        if (quantity <= 0) {
+            delete(cartKey, fieldKey);
+        } else {
+            hashSet(cartKey, fieldKey, quantity);
         }
+
+        if (!hashExist(idsKey, fieldKey)) {
+            Long id = increment(cartKey + ":id-counter");
+            hashSet(idsKey, fieldKey, id);
+        }
+
     }
 
     @Override
-    public void deleteProductsInCart(String userId, CartItemDeletionRequest cartItemRequest) {
+    public void deleteProductInCart(String userId, CartItemDeletionRequest cartItemRequest) {
 
         if (!isAuthorized(userId)) {
             throw new AccessDeniedException("You are not authorized to modify this cart");
@@ -131,17 +128,16 @@ public class CartRedisServiceImpl extends BaseRedisServiceImpl implements CartRe
 
         String fieldKey;
 
-        if (Objects.nonNull(cartItemRequest.getProductItemIds())) {
-            for (String productItemId : cartItemRequest.getProductItemIds()) {
-                fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + productItemId;
 
-                if (!this.hashExist(key, fieldKey)) {
-                    throw new ResourceNotFoundException("Key [%s] with keyField [%s] not found".formatted(key, fieldKey));
-                }
-                delete(key, fieldKey);
-            }
+        fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + cartItemRequest.getProductItemId();
+
+        if (!this.hashExist(key, fieldKey)) {
+            throw new ResourceNotFoundException("Key [%s] with keyField [%s] not found".formatted(key, fieldKey));
         }
+
+        delete(key, fieldKey);
     }
+
 
     @Override
     public void deleteAllProductsInCart(String userId) {

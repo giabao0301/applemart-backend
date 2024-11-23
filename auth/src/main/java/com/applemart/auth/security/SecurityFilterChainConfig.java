@@ -24,6 +24,8 @@ public class SecurityFilterChainConfig {
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,8 +44,14 @@ public class SecurityFilterChainConfig {
                                         HttpMethod.GET,
                                         "/api/v1/users/addresses/**",
                                         "/api/v1/auth/registration/confirm",
+                                        "/api/v1/auth/reset-password/confirm",
                                         "/api/v1/auth/signup/confirm",
                                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
+                                .permitAll()
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/api/v1/auth/reset-password"
+                                )
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.GET,
@@ -68,14 +76,16 @@ public class SecurityFilterChainConfig {
                                         userInfoEndpoint
                                                 .userService(customOAuth2UserService)
                                 )
+                                .successHandler(oAuth2LoginSuccessHandler)
+                                .failureHandler(customAuthenticationFailureHandler)
                 )
                 .logout(logout ->
                         logout
                                 .logoutUrl("/logout")
-                                .logoutSuccessUrl("/") // Redirect to home page after logout
-                                .invalidateHttpSession(true) // Invalidate session
-                                .clearAuthentication(true) // Clear authentication
-                                .deleteCookies("JSESSIONID") // Delete cookies
+                                .logoutSuccessUrl("/")
+                                .invalidateHttpSession(true)
+                                .clearAuthentication(true)
+                                .deleteCookies("JSESSIONID")
                                 .permitAll()
                 );
 

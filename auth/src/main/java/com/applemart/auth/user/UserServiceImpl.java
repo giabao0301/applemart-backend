@@ -1,12 +1,10 @@
 package com.applemart.auth.user;
 
 import com.applemart.auth.clients.EmailValidationService;
-import com.applemart.auth.common.NotificationRequest;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
-import com.applemart.auth.registration.token.ConfirmationToken;
-import com.applemart.auth.registration.token.ConfirmationTokenRepository;
+import com.applemart.auth.token.TokenRepository;
 import com.applemart.auth.common.PageResponse;
 import com.applemart.auth.user.address.Address;
 import com.applemart.auth.user.address.AddressDTO;
@@ -14,7 +12,6 @@ import com.applemart.auth.user.address.AddressDTOMapper;
 import com.applemart.auth.user.address.AddressRepository;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
-import com.applemart.auth.utils.OTPGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +44,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserDTOMapper userDTOMapper;
     private final EmailValidationService emailValidationService;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final TokenRepository tokenRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
 
@@ -146,13 +142,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @PostAuthorize("returnObject.id == authentication.name or hasRole('ADMIN')")
     public UserDTO updateUser(Integer id, UserUpdateRequest request) {
         if (emailValidationService.validateEmail(request.getEmail())) {
             throw new ResourceNotFoundException("Email doesn't exist");
         }
 
-        User user = userRepository.getReferenceById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(id)));
+
+        Role role = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        if (!getLoggedInUser().getUsername().equals(user.getUsername()) && !getLoggedInUser().getRoles().contains(role)) {
+            throw new AccessDeniedException("You don't have permission to update this user");
+        }
 
         User userUpdateRequest = userDTOMapper.toEntity(request);
 
@@ -192,24 +195,6 @@ public class UserServiceImpl implements UserService {
             throw new RequestValidationException("No data changes found");
         }
 
-        String token = OTPGenerator.generateOTP(6);
-        ConfirmationToken confirmationToken = new ConfirmationToken(
-                token,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
-                user
-        );
-
-        confirmationTokenRepository.save(confirmationToken);
-
-        NotificationRequest notificationRequest = NotificationRequest.builder()
-                .message(token)
-                .toUserEmail(user.getEmail())
-                .toUserName(user.getFullName())
-                .build();
-
-        kafkaTemplate.send("notification", notificationRequest);
-
         return userDTOMapper.toDTO(userRepository.save(user));
     }
 
@@ -221,7 +206,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByName("ADMIN")
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        if (!getLoggedInUser().getUsername().equals(user.getUsername()) || !getLoggedInUser().getRoles().contains(role)) {
+        if (!getLoggedInUser().getUsername().equals(user.getUsername()) && !getLoggedInUser().getRoles().contains(role)) {
             throw new AccessDeniedException("You don't have permission to delete this user");
         }
 

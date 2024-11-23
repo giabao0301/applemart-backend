@@ -23,6 +23,8 @@ public interface BaseRedisService {
 
     Set<String> getFieldPrefix(String key);
 
+    Long increment(String key);
+
     void delete(String key);
 
     void delete(String key, String field);

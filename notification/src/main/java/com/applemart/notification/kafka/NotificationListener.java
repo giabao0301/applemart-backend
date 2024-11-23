@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 import static com.applemart.notification.email.EmailBuilder.buildEmail;
 
 @Component
@@ -22,15 +20,16 @@ public class NotificationListener {
     private final EmailService emailService;
     private final NotificationService notificationService;
 
-    @KafkaListener(topics = "notification", groupId = " notification-group")
+    @KafkaListener(topics = "notification", groupId = "notification-group")
     public void listener(NotificationRequest data) {
         log.info("Received notification: {}", data);
         
         EmailDetails email = EmailDetails.builder()
                 .recipient(data.getToUserEmail())
-                .subject("Email Verification")
-                .msgBody(buildEmail(data.getToUserName(), LocalDateTime.now(), data.getMessage()))
+                .subject(data.getSubject())
+                .msgBody(buildEmail(data))
                 .build();
+
         emailService.send(email);
 
         notificationService.saveNotification(data);

@@ -35,17 +35,19 @@ public class RegistrationController {
     @PostMapping(value = {"/register", "/signup"})
     public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) {
 
-        UserDTO user = registrationService.register(request);
-
-        String jwtToken = jwtUtil.issueToken(String.valueOf(user.getId()), "USER");
+        registrationService.register(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.AUTHORIZATION, jwtToken)
-                .body("User registered successfully");
+                .body("User created successfully, please verify OTP sent to your email address to activate your account");
     }
 
     @GetMapping(value = {"/registration/confirm", "/signup/confirm"})
     public ResponseEntity<String> confirm(@RequestParam("token") String token) {
-        return new ResponseEntity<>(registrationService.confirmToken(token), HttpStatus.OK);
+        Integer userId = registrationService.confirmToken(token);
+        String jwtToken = jwtUtil.issueToken(String.valueOf(userId), "USER");
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.AUTHORIZATION, jwtToken)
+                .body("User registered successfully");
     }
 }

@@ -79,7 +79,7 @@ public class UserController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/info")
+    @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserDTO>> getUserProfile() {
         ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
                 .status(HttpStatus.OK.value())

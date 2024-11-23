@@ -1,6 +1,5 @@
 package com.applemart.cart.redis;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -73,6 +72,11 @@ public class BaseRedisServiceImpl implements BaseRedisService {
     @Override
     public Set<String> getFieldPrefix(String key) {
         return hashOperations.entries(key).keySet();
+    }
+
+    @Override
+    public Long increment(String key) {
+        return redisTemplate.opsForValue().increment(key);
     }
 
     @Override

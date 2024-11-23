@@ -1,10 +1,12 @@
 package com.applemart.cart;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class CartItemDeletionRequest {
-    private List<String> productItemIds;
+    @NotBlank(message = "Product Item id is required")
+    private Integer productItemId;
 }

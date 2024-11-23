@@ -1,18 +1,17 @@
 package com.applemart.auth.registration;
 
-import com.applemart.auth.common.NotificationRequest;
 import com.applemart.auth.exception.DuplicateResourceException;
 import com.applemart.auth.exception.ResourceNotFoundException;
-import com.applemart.auth.registration.token.ConfirmationToken;
-import com.applemart.auth.registration.token.ConfirmationTokenRepository;
+import com.applemart.auth.token.Token;
+import com.applemart.auth.token.TokenRepository;
 import com.applemart.auth.user.*;
 import com.applemart.auth.clients.EmailValidationService;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
 import com.applemart.auth.utils.OTPGenerator;
+import com.applemart.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,16 +27,16 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final UserDTOMapper userDTOMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final TokenRepository tokenRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final EmailValidationService emailValidationService;
 
     @Override
-    public UserDTO register(RegistrationRequest request) {
+    public void register(RegistrationRequest request) {
 
-        if (emailValidationService.validateEmail(request.getEmail())) {
-            throw new ResourceNotFoundException("Email doesn't exist");
-        }
+//        if (emailValidationService.validateEmail(request.getEmail())) {
+//            throw new ResourceNotFoundException("Email doesn't exist");
+//        }
 
         User user = userDTOMapper.toEntity(request);
 
@@ -54,53 +53,46 @@ public class RegistrationServiceImpl implements RegistrationService {
         Set<Role> roles = new HashSet<>();
 
         Role role = roleRepository.findByName("USER")
-                        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         roles.add(role);
         user.setRoles(roles);
-        UserDTO userDTO = userDTOMapper.toDTO(userRepository.save(user));
+
+        user.setEnabled(false);
+
+        userDTOMapper.toDTO(userRepository.save(user));
 
         String token = OTPGenerator.generateOTP(6);
-        ConfirmationToken confirmationToken = new ConfirmationToken(
-                token,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
-                user
-        );
+        Token confirmationToken = Token.builder()
+                .token(token)
+                .type("confirmation")
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusHours(24))
+                .user(user)
+                .build();
 
-        confirmationTokenRepository.save(confirmationToken);
 
+        tokenRepository.save(confirmationToken);
 
         NotificationRequest notificationRequest = NotificationRequest.builder()
+                .subject("%s là mã xác nhận email của bạn".formatted(token))
                 .message(token)
                 .toUserEmail(user.getEmail())
                 .toUserName(user.getFullName())
                 .build();
 
         kafkaTemplate.send("notification", notificationRequest);
-
-        return userDTO;
     }
 
     @Override
-    public String confirmToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Confirmation token not found"));
-
-        if (confirmationToken.getConfirmedAt() != null) {
-            throw new DuplicateResourceException("Confirmation token already confirmed");
-        }
-
-        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
-
-        if (expiredAt.isBefore(LocalDateTime.now())) {
-            throw new BadCredentialsException("Token expired");
-        }
-
-        confirmationTokenRepository.updateConfirmedAt(token, LocalDateTime.now());
+    public Integer confirmToken(String token) {
+        Token confirmationToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
 
         Integer id = confirmationToken.getUser().getId();
         userRepository.enableUser(id);
 
-        return "Token confirmed";
+        tokenRepository.delete(confirmationToken);
+
+        return id;
     }
 }

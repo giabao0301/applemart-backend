@@ -154,8 +154,8 @@ public class ProductItemServiceImpl implements ProductItemService {
 
         boolean changed = false;
 
-        if (productItemUpdateRequest.getQuantity() != null && !productItemUpdateRequest.getQuantity().equals(productItem.getQuantity())) {
-            productItem.setQuantity(productItemUpdateRequest.getQuantity());
+        if (productItemUpdateRequest.getQuantityInStock() != null && !productItemUpdateRequest.getQuantityInStock().equals(productItem.getQuantityInStock())) {
+            productItem.setQuantityInStock(productItemUpdateRequest.getQuantityInStock());
             changed = true;
         }
 

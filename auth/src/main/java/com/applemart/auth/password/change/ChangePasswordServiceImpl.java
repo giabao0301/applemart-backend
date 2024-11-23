@@ -1,8 +1,10 @@
 package com.applemart.auth.password.change;
 
+import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.user.User;
 import com.applemart.auth.user.UserRepository;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,8 +33,10 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
     public void changePassword(ChangePasswordRequest request) {
         User user = getLoggedInUser();
 
+        String currentPassword = request.getCurrentPassword();
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        boolean authenticated = passwordEncoder.matches(request.getCurrentPassword(), user.getPassword());
+        boolean authenticated = passwordEncoder.matches(currentPassword, user.getPassword());
 
         if (!authenticated) {
             throw new BadCredentialsException("Current password is incorrect");
@@ -41,8 +45,12 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
         String newPassword = request.getNewPassword();
         String confirmPassword = request.getConfirmPassword();
 
+        if (newPassword.equals(currentPassword)) {
+            throw new RequestValidationException("New password and current password must be different");
+        }
+
         if (!newPassword.equals(confirmPassword)) {
-            throw new BadCredentialsException("New passwords do not match");
+            throw new BadCredentialsException("Confirm password does not match");
         }
 
         userRepository.updateUserPassword(user.getId(), passwordEncoder.encode(newPassword));

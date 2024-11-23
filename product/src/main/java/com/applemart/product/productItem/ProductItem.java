@@ -25,14 +25,14 @@ public class ProductItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    private String imageUrl;
-
     private String name;
 
     @Column(name = "qty_in_stock")
-    private Integer quantity;
+    private Integer quantityInStock;
 
     private Double price;
+
+    private String imageUrl;
 
     private String slug;
 

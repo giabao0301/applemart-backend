@@ -64,7 +64,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             userRepository.save(user);
         }
 
-
         return new CustomOAuth2User(user, oauth2User.getAuthorities());
     }
 }

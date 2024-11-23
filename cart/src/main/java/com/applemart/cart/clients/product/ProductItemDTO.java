@@ -16,7 +16,7 @@ public class ProductItemDTO {
     private Integer id;
     private String productName;
     private String name;
-    private Integer quantity;
+    private Integer quantityInStock;
     private Double price;
     private String imageUrl;
     private String slug;

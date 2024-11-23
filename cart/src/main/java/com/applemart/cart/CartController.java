@@ -1,5 +1,6 @@
 package com.applemart.cart;
 
+import com.applemart.cart.clients.product.CartItem;
 import com.applemart.cart.clients.product.ProductItemDTO;
 import com.applemart.cart.common.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,15 +22,14 @@ public class CartController {
     private final CartRedisService cartRedisService;
 
     @GetMapping("{userId}")
-    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductsFromCartByUserId(@PathVariable("userId") String userId) {
-        ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
+    public ResponseEntity<ApiResponse<List<CartItem>>> getProductsFromCartByUserId(@PathVariable("userId") String userId) {
+        ApiResponse<List<CartItem>> apiResponse = ApiResponse.<List<CartItem>>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
                 .data(cartRedisService.getProductsFromCartByUserId(userId))
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-
     }
 
     @PostMapping("/{userId}")
@@ -41,12 +41,12 @@ public class CartController {
     @PutMapping("/{userId}")
     public ResponseEntity<String> updateProductInCart(@PathVariable("userId") String userId, @RequestBody CartItemRequest cartItemRequest) {
         cartRedisService.updateProductInCart(userId, cartItemRequest);
-        return new ResponseEntity<>("Update cart successfully!", HttpStatus.CREATED);
+        return new ResponseEntity<>("Update cart successfully!", HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteProductsInCart(@PathVariable("userId") String userId, @RequestBody CartItemDeletionRequest request){
-        this.cartRedisService.deleteProductsInCart(userId, request);
+    public ResponseEntity<String> deleteProductInCart(@PathVariable("userId") String userId, @RequestBody CartItemDeletionRequest request){
+        this.cartRedisService.deleteProductInCart(userId, request);
         return new ResponseEntity<>("Deleted product in cart successfully!", HttpStatus.OK);
     }
 

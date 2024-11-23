@@ -38,6 +38,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new BadCredentialsException("Password is incorrect");
         }
 
+        if (!user.getEnabled()) {
+            throw new BadCredentialsException("Account is disabled");
+        }
+
         List<String> roles = new ArrayList<>();
         user.getRoles().forEach(role -> roles.add(role.getName()));
 

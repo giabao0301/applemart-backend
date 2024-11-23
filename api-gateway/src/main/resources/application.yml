@@ -14,11 +14,17 @@ spring:
         - id: auth
           uri: lb://AUTH
           predicates:
-            - Path=/api/v1/auth/**, /api/v1/users/**
+            - Path=/api/v1/auth/**, /api/v1/users/**, /oauth2/authorization/google
         - id: cart
           uri: lb://CART
           predicates:
             - Path=/api/v1/carts/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                redis-rate-limiter.requestedTokens: 1
         - id: order
           uri: lb://ORDER
           predicates:
@@ -46,4 +52,3 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     fetch-registry: true
     register-with-eureka: true
-
