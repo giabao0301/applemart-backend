@@ -20,8 +20,8 @@ public class PasswordResetController {
     }
 
     @PutMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody @Valid PasswordUpdateRequest request) {
-        passwordResetService.resetPassword(request);
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid PasswordUpdateRequest request, @RequestParam("token") String token) {
+        passwordResetService.resetPassword(request, token);
         return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
     }
 

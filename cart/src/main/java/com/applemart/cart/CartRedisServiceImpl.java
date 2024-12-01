@@ -1,12 +1,9 @@
 package com.applemart.cart;
 
-import com.applemart.cart.clients.product.CartItem;
 import com.applemart.cart.clients.product.ProductItemDTO;
 import com.applemart.cart.clients.product.ProductItemService;
-import com.applemart.cart.exception.RequestValidationException;
 import com.applemart.cart.exception.ResourceNotFoundException;
 import com.applemart.cart.redis.BaseRedisServiceImpl;
-import jakarta.ws.rs.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -128,14 +125,16 @@ public class CartRedisServiceImpl extends BaseRedisServiceImpl implements CartRe
 
         String fieldKey;
 
+        if (Objects.nonNull(cartItemRequest.getProductItemIds())) {
+            for (String productItemId : cartItemRequest.getProductItemIds()) {
+                fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + productItemId;
 
-        fieldKey = CART_PRODUCT_ITEM_FIELD_PREFIX + cartItemRequest.getProductItemId();
-
-        if (!this.hashExist(key, fieldKey)) {
-            throw new ResourceNotFoundException("Key [%s] with keyField [%s] not found".formatted(key, fieldKey));
+                if (!this.hashExist(key, fieldKey)) {
+                    throw new ResourceNotFoundException("Key [%s] with keyField [%s] not found".formatted(key, fieldKey));
+                }
+                delete(key, fieldKey);
+            }
         }
-
-        delete(key, fieldKey);
     }
 
 

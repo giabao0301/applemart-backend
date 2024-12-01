@@ -2,10 +2,12 @@ package com.applemart.auth.password.reset;
 
 import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
+import com.applemart.auth.registration.RegistrationService;
 import com.applemart.auth.token.Token;
 import com.applemart.auth.token.TokenRepository;
 import com.applemart.auth.user.User;
 import com.applemart.auth.user.UserRepository;
+import com.applemart.auth.user.UserService;
 import com.applemart.auth.utils.OTPGenerator;
 import com.applemart.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final RegistrationService registrationService;
 
     @Override
     public void requestPasswordReset(PasswordResetRequest request) {
@@ -52,7 +55,14 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     }
 
     @Override
-    public void resetPassword(PasswordUpdateRequest request) {
+    public void resetPassword(PasswordUpdateRequest request, String token) {
+
+        Token passwordResetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+
+        if (!passwordResetToken.getUser().getEmail().equals(request.getEmail())) {
+            throw new BadCredentialsException("Invalid email");
+        }
 
         String email = request.getEmail();
         String newPassword = request.getNewPassword();
@@ -72,6 +82,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         }
 
         userRepository.updateUserPassword(user.getId(), passwordEncoder.encode(newPassword));
+        tokenRepository.delete(passwordResetToken);
     }
 
     @Override
@@ -79,8 +90,6 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         Token passwordResetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
 
-        tokenRepository.delete(passwordResetToken);
-
-        return "http://localhost:3000/reset-password?email=" + passwordResetToken.getUser().getEmail();
+        return "http://localhost:3000/reset-password?token=%s&email=%s".formatted(passwordResetToken.getToken(), passwordResetToken.getUser().getEmail());
     }
 }

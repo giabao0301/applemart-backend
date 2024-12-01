@@ -91,8 +91,13 @@ public class UserController {
     }
 
     @GetMapping("/addresses")
-    public ResponseEntity<List<AddressDTO>> getAddress() {
-        return new ResponseEntity<>(userService.getAddress(), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<AddressDTO>>> getAddress() {
+        ApiResponse<List<AddressDTO>> apiResponse = ApiResponse.<List<AddressDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(userService.getAddress())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @GetMapping("/addresses/{id}")
@@ -125,6 +130,12 @@ public class UserController {
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/addresses/{id}/default")
+    public ResponseEntity<?> patchAddress(@PathVariable("id") Integer id) {
+        userService.setDefaultAddress(id);
+        return ResponseEntity.ok("Set default address successfully");
     }
 
     @DeleteMapping("/addresses/{id}")

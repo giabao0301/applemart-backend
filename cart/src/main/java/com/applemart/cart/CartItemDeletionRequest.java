@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class CartItemDeletionRequest {
     @NotBlank(message = "Product Item id is required")
-    private Integer productItemId;
+    private List<String> productItemIds;
 }

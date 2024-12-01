@@ -50,7 +50,9 @@ VALUES (1, 7, 'Màu'),
        (16, 10, 'Ổ cứng'),
        (18, 11, 'Màn hình'),
        (19, 11, 'Chân đế'),
-       (20, 12, 'Màn hình');
+       (20, 12, 'Màn hình'),
+       (21, 2, 'Màu'),
+       (22, 2, 'Dung lượng lưu trữ');
 
 INSERT INTO variation_option
 VALUES (1, 1, 'Đêm Xanh Thẳm',

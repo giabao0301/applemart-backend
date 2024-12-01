@@ -39,7 +39,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         if (!user.getEnabled()) {
-            throw new BadCredentialsException("Account is disabled");
+            throw new BadCredentialsException("Account is not active");
         }
 
         List<String> roles = new ArrayList<>();

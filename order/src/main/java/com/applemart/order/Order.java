@@ -43,7 +43,7 @@ public class Order {
     private ShippingMethod shippingMethod;
 
     @Column(nullable = false, length = 50)
-    private String orderStatus; // Chờ xác nhận / Đang chuẩn bị hàng / Đang giao / Đã giao / Đã hủy / Trả hàng
+    private String orderStatus; // Chờ xác nhận / Đang chuẩn bị hàng / Đang giao / Hoàn thành / Đã hủy / Trả hàng
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines = new ArrayList<>();

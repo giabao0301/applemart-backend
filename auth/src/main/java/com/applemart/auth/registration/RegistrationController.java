@@ -41,6 +41,13 @@ public class RegistrationController {
                 .body("User created successfully, please verify OTP sent to your email address to activate your account");
     }
 
+    @PostMapping("/resend-activation")
+    public ResponseEntity<?> resendActivationEmail(@RequestBody ResendActivationRequest request) {
+        registrationService.resendActivationEmail(request.getEmail());
+        return ResponseEntity.ok("Activation email sent.");
+    }
+
+
     @GetMapping(value = {"/registration/confirm", "/signup/confirm"})
     public ResponseEntity<String> confirm(@RequestParam("token") String token) {
         Integer userId = registrationService.confirmToken(token);

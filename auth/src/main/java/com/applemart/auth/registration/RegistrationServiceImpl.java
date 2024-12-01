@@ -61,6 +61,27 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         userDTOMapper.toDTO(userRepository.save(user));
 
+        this.resendActivationEmail(user.getEmail());
+    }
+
+    @Override
+    public Integer confirmToken(String token) {
+        Token confirmationToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+
+        Integer id = confirmationToken.getUser().getId();
+        userRepository.enableUser(id);
+
+        tokenRepository.delete(confirmationToken);
+
+        return id;
+    }
+
+    @Override
+    public void resendActivationEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User with email [%s] not found".formatted(email)));
+
         String token = OTPGenerator.generateOTP(6);
         Token confirmationToken = Token.builder()
                 .token(token)
@@ -81,18 +102,5 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .build();
 
         kafkaTemplate.send("notification", notificationRequest);
-    }
-
-    @Override
-    public Integer confirmToken(String token) {
-        Token confirmationToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
-
-        Integer id = confirmationToken.getUser().getId();
-        userRepository.enableUser(id);
-
-        tokenRepository.delete(confirmationToken);
-
-        return id;
     }
 }

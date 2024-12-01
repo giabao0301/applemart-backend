@@ -21,5 +21,6 @@ public interface UserService {
     AddressDTO getAddressById(Integer id);
     AddressDTO addAddress(AddressDTO request);
     AddressDTO updateAddress(Integer id, AddressDTO request);
+    void setDefaultAddress(Integer id);
     void deleteAddressById(Integer id);
 }

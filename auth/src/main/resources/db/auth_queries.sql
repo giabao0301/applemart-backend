@@ -8,7 +8,7 @@ CREATE TABLE user (
     date_of_birth DATE,
     phone_number VARCHAR(20)
 );
-
+	
 CREATE TABLE role (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     password VARCHAR(255) NOT NULL

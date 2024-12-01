@@ -33,7 +33,8 @@ public class SecurityFilterChainConfig {
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.GET,
-                                        "/api/v1/payment/**",
+                                        "/api/v1/payments/**",
+                                        "/api/v1/shippingMethods/**",
                                         "/api/v1/orders/search/**"
                                 )
                                 .permitAll()

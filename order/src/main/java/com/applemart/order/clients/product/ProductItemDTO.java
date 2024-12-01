@@ -19,7 +19,7 @@ public class ProductItemDTO {
     private String name;
 
     @Min(value = 0, message = "Product quantity is invalid")
-    private Integer quantity;
+    private Integer quantityInStock;;
 
     @Min(value = 0, message = "Product price is invalid")
     private Double price;

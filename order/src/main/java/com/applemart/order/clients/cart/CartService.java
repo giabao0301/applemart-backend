@@ -12,7 +12,7 @@ public class CartService {
 
     private final CartClient cartClient;
 
-    public List<ProductItemDTO> getProductItemsFromCart(String userId) {
+    public List<CartItem> getProductItemsFromCart(String userId) {
         return cartClient.getProductItemsFromCart(userId).getData();
     }
 

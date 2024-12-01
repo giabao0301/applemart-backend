@@ -1,7 +1,5 @@
 package com.applemart.cart;
 
-import com.applemart.cart.clients.product.CartItem;
-import com.applemart.cart.clients.product.ProductItemDTO;
 import com.applemart.cart.common.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -1,11 +1,10 @@
-package com.applemart.cart.clients.product;
+package com.applemart.order.clients.cart;
 
+import com.applemart.order.clients.product.ProductItemDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 
 @Data

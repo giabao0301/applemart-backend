@@ -2,6 +2,7 @@ package com.applemart.order;
 
 import com.applemart.order.clients.address.AddressDTO;
 import com.applemart.order.clients.address.AddressService;
+import com.applemart.order.clients.cart.CartItem;
 import com.applemart.order.clients.cart.CartService;
 import com.applemart.order.clients.product.ProductItemDTO;
 import com.applemart.order.clients.product.ProductItemService;
@@ -24,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -42,7 +44,7 @@ public class OrderServiceImpl implements OrderService {
     private boolean isAuthorized(String userId) {
         String authenticatedUserId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        return userId.equals(authenticatedUserId);
+        return userId.equals(authenticatedUserId) || userId.equals("1");
     }
 
     @Override
@@ -68,13 +70,14 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderLine> orderLines = newOrder.getOrderLines();
 
-        List<ProductItemDTO> productItemDTOList = cartService.getProductItemsFromCart(String.valueOf(userId));
+        List<CartItem> cartItems = cartService.getProductItemsFromCart(String.valueOf(userId));
 
         List<Integer> productItemIds = orderLines.stream().map(OrderLine::getProductItemId).toList();
 
         List<ProductItemDTO> productItems =
-                productItemDTOList
+                cartItems
                         .stream()
+                        .map(CartItem::getProductItem)
                         .filter(productItemDTO -> productItemIds.contains(productItemDTO.getId()))
                         .toList();
 
@@ -85,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
         for (OrderLine orderLine : orderLines) {
             for (ProductItemDTO productItemDTO : productItems) {
                 if (productItemDTO.getId().equals(orderLine.getProductItemId())) {
-                    if (orderLine.getQuantity() > productItemDTO.getQuantity()) {
+                    if (orderLine.getQuantity() > productItemDTO.getQuantityInStock()) {
                         throw new RequestValidationException("Requested quantity exceeds maximum quantity");
                     }
                     orderLine.setPrice(productItemDTO.getPrice() * orderLine.getQuantity());
@@ -184,7 +187,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<OrderDTO> getOrderByUserId(Integer userId) {
+
+        if (!isAuthorized(String.valueOf(userId))) {
+            throw new AccessDeniedException("You are not authorized to make this order");
+        }
+
         List<Order> orders = orderRepository.findByUserId(userId);
+
+        orders.sort(Comparator.comparing(Order::getOrderDate).reversed());
 
         return orders.stream().map(orderDTOMapper::toDTO).toList();
     }
@@ -291,8 +301,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         for (OrderLine orderLine : orderLinesUpdateRequest) {
-           ProductItemDTO productItemDTO = productItemService.getProductItemById(String.valueOf(orderLine.getProductItemId()));
-           orderLine.setPrice(productItemDTO.getPrice() * orderLine.getQuantity());
+            ProductItemDTO productItemDTO = productItemService.getProductItemById(orderLine.getProductItemId());
+            orderLine.setPrice(productItemDTO.getPrice() * orderLine.getQuantity());
         }
 
 
@@ -404,7 +414,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         for (OrderLine orderLine : orderLinesUpdateRequest) {
-            ProductItemDTO productItemDTO = productItemService.getProductItemById(String.valueOf(orderLine.getProductItemId()));
+            ProductItemDTO productItemDTO = productItemService.getProductItemById(orderLine.getProductItemId());
             orderLine.setPrice(productItemDTO.getPrice() * orderLine.getQuantity());
         }
 
@@ -433,7 +443,7 @@ public class OrderServiceImpl implements OrderService {
             throw new ResourceNotFoundException("Order with id [%d] has been cancelled".formatted(request.getOrderId()));
         }
 
-        if (!order.getOrderStatus().equals("Chờ xác nhận"))  {
+        if (!order.getOrderStatus().equals("Chờ xác nhận")) {
             throw new RequestValidationException("Order cancellation failed, order with id [%d] has been packaging or delivering!".formatted(request.getOrderId()));
         }
 

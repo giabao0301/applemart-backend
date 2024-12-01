@@ -6,10 +6,7 @@ import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.token.TokenRepository;
 import com.applemart.auth.common.PageResponse;
-import com.applemart.auth.user.address.Address;
-import com.applemart.auth.user.address.AddressDTO;
-import com.applemart.auth.user.address.AddressDTOMapper;
-import com.applemart.auth.user.address.AddressRepository;
+import com.applemart.auth.user.address.*;
 import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleRepository;
 import jakarta.transaction.Transactional;
@@ -28,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -240,6 +238,8 @@ public class UserServiceImpl implements UserService {
 
         List<Address> addresses = addressRepository.findByUser(user);
 
+        addresses.sort(Comparator.comparing(Address::getIsDeliveryAddress, Comparator.nullsLast(Comparator.reverseOrder())));
+
         return addresses.stream()
                 .map(addressDTOMapper::toDTO)
                 .toList();
@@ -263,7 +263,14 @@ public class UserServiceImpl implements UserService {
         User user = getLoggedInUser();
 
         address.setUser(user);
+        if (request.getIsDeliveryAddress().equals(true)) {
+            List<Address> defaultAddresses = addressRepository.findDefaultAddress(user.getId());
 
+            for (Address a : defaultAddresses) {
+                a.setIsDeliveryAddress(false);
+                addressRepository.save(a);
+            }
+        }
         Address newAddress = addressRepository.save(address);
         return addressDTOMapper.toDTO(newAddress);
     }
@@ -278,6 +285,11 @@ public class UserServiceImpl implements UserService {
         Address addressUpdateRequest = addressDTOMapper.toEntity(request);
 
         boolean changed = false;
+
+        if (addressUpdateRequest.getRecipient() != null && !addressUpdateRequest.getRecipient().equals(address.getRecipient())) {
+            address.setRecipient(addressUpdateRequest.getRecipient());
+            changed = true;
+        }
 
         if (addressUpdateRequest.getPhone() != null && !addressUpdateRequest.getPhone().equals(address.getPhone())) {
             address.setPhone(addressUpdateRequest.getPhone());
@@ -310,15 +322,40 @@ public class UserServiceImpl implements UserService {
         }
 
         if (addressUpdateRequest.getIsDeliveryAddress() != null && !addressUpdateRequest.getIsDeliveryAddress().equals(address.getIsDeliveryAddress())) {
+            if (addressUpdateRequest.getIsDeliveryAddress().equals(true)) {
+                List<Address> defaultAddresses = addressRepository.findDefaultAddress(user.getId());
+
+                for (Address a : defaultAddresses) {
+                    a.setIsDeliveryAddress(false);
+                    addressRepository.save(a);
+                }
+            }
+
             address.setIsDeliveryAddress(addressUpdateRequest.getIsDeliveryAddress());
+
             changed = true;
         }
+
 
         if (!changed) {
             throw new RequestValidationException("No data changes found");
         }
 
         return addressDTOMapper.toDTO(addressRepository.save(address));
+    }
+
+    @Override
+    public void setDefaultAddress(Integer id) {
+        User user = getLoggedInUser();
+
+        List<Address> defaultAddresses = addressRepository.findDefaultAddress(user.getId());
+
+        for (Address address : defaultAddresses) {
+            address.setIsDeliveryAddress(false);
+            addressRepository.save(address);
+        }
+
+        addressRepository.setDefaultAddress(id);
     }
 
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class ProductItemService {
     private final ProductItemClient productItemClient;
 
-    public ProductItemDTO getProductItemById(String id) {
+    public ProductItemDTO getProductItemById(Integer id) {
         return productItemClient.getProductItemById(id).getData();
     }
 }

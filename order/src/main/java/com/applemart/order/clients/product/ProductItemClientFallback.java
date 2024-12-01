@@ -10,12 +10,12 @@ import java.util.ArrayList;
 public class ProductItemClientFallback implements ProductItemClient {
 
     @Override
-    public ApiResponse<ProductItemDTO> getProductItemById(String id) {
+    public ApiResponse<ProductItemDTO> getProductItemById(Integer id) {
         ProductItemDTO defaultProductItem = ProductItemDTO.builder()
                 .id(-1)
                 .productName("Default Product")
                 .name("Default Name")
-                .quantity(0)
+                .quantityInStock(0)
                 .price(0.0)
                 .imageUrl("https://cdn.icon-icons.com/icons2/1678/PNG/512/wondicon-ui-free-parcel_111208.png")
                 .slug("default-product")

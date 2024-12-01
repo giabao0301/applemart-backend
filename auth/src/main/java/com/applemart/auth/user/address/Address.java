@@ -17,7 +17,7 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
+    private String recipient;
     private String phone;
     private String city;
     private String district;

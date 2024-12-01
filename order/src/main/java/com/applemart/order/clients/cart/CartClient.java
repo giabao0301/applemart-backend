@@ -1,7 +1,6 @@
 package com.applemart.order.clients.cart;
 
 import com.applemart.order.common.ApiResponse;
-import com.applemart.order.clients.product.ProductItemDTO;
 import com.applemart.order.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Primary;
@@ -16,7 +15,7 @@ import java.util.List;
 @FeignClient(name = "cart", url = "http://localhost:8082", configuration = FeignClientConfig.class, fallback = CartClientFallback.class)
 public interface CartClient {
     @GetMapping("/api/v1/carts/{userId}")
-    ApiResponse<List<ProductItemDTO>> getProductItemsFromCart(@PathVariable("userId") String userId);
+    ApiResponse<List<CartItem>> getProductItemsFromCart(@PathVariable("userId") String userId);
 
     @DeleteMapping("/api/v1/carts/{userId}")
     String deleteProductsInCart(@PathVariable("userId") String userId, @RequestBody CartItemDeletionRequest request);
