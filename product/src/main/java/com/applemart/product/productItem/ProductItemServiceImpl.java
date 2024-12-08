@@ -111,10 +111,12 @@ public class ProductItemServiceImpl implements ProductItemService {
             configuration.setVariationOption(option);
             configuration.setProductItem(newProductItem);
 
-            if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
+            if (optionName.equals("Ổ cứng")) {
                 name.append("/").append(optionValue);
             } else {
-                name.append(" ").append(optionValue);
+                if (!product.getName().equals(optionValue)) {
+                    name.append(" ").append(optionValue);
+                }
             }
         }
 
@@ -229,10 +231,12 @@ public class ProductItemServiceImpl implements ProductItemService {
                     changed = true;
                 }
 
-                if (optionName.equals("Ổ cứng") || optionName.equals("Dung lượng lưu trữ")) {
+                if (optionName.equals("Ổ cứng")) {
                     name.append("/").append(optionValue);
                 } else {
-                    name.append(" ").append(optionValue);
+                    if (!product.getName().equals(optionValue)) {
+                        name.append(" ").append(optionValue);
+                    }
                 }
             }
         }

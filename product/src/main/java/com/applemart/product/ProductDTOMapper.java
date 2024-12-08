@@ -1,6 +1,5 @@
 package com.applemart.product;
 
-import com.applemart.product.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

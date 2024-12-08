@@ -70,6 +70,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    public List<ProductDTO> getProductByCategory(String categoryUrlKey) {
+
+        Category category = categoryRepository.findByUrlKey(categoryUrlKey)
+                .orElseThrow(() -> new ResourceNotFoundException("Category [%s] not found".formatted(categoryUrlKey)));
+
+        List<Product> products = productRepository.findByCategory(category);
+
+        return products
+                .stream()
+                .map(productDTOMapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
 
         Product newProduct = productDTOMapper.toEntity(productDTO);

@@ -27,7 +27,6 @@ public class Category {
 
     private String thumbnailUrl;
 
-
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "parent_category_id")
     private Category parentCategory;

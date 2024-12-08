@@ -57,13 +57,23 @@ public class ProductController {
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ProductDTO> getProductBySlug(@RequestParam("slug") String slug) {
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<ProductDTO> getProductBySlug(@PathVariable("slug") String slug) {
         ProductDTO product = productService.getProductBySlug(slug);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
+    @GetMapping("/category/{category}")
+    public ResponseEntity<ApiResponse<List<ProductDTO>>> getProductByCategory(@PathVariable("category") String category) {
+        ApiResponse<List<ProductDTO>> apiResponse = ApiResponse.<List<ProductDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(productService.getProductByCategory(category))
+                .build();
 
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+    
     @GetMapping("/{id}/productItems")
     public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductSlug(@PathVariable("id") Integer id) {
         ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
@@ -92,6 +102,6 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable("id") Integer id) {
         productService.deleteProduct(id);
-        return new ResponseEntity<>("Product is deleted successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Product is deleted successfully", HttpStatus.ACCEPTED);
     }
 }

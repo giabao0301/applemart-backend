@@ -24,7 +24,7 @@ public class Variation {
 
     private String name;
 
-    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VariationOption> options = new ArrayList<>();
 
     @ManyToOne
