@@ -12,4 +12,7 @@ public interface ProductService {
     ProductDTO createProduct(ProductDTO productDTO);
     ProductDTO updateProduct(Integer id, ProductDTO productDTO);
     void deleteProduct(Integer id);
+
+    PageResponse<ProductDTO> searchProduct(String name, int page, int size, String sort, String dir);
+    List<String> getSuggestions(String query);
 }

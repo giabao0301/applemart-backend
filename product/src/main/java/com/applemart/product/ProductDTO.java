@@ -15,5 +15,6 @@ public class ProductDTO {
     private String description;
     private String thumbnailUrl;
     private String slug;
+    private Integer releaseYear;
     private List<ProductImageDTO> images;
 }

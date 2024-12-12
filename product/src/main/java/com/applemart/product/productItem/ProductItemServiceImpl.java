@@ -2,6 +2,7 @@ package com.applemart.product.productItem;
 
 import com.applemart.product.Product;
 import com.applemart.product.ProductRepository;
+import com.applemart.product.common.PageResponse;
 import com.applemart.product.exception.DuplicateResourceException;
 import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
@@ -13,6 +14,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,7 +71,29 @@ public class ProductItemServiceImpl implements ProductItemService {
     @Override
     @Transactional
     public List<ProductItemDTO> getProductItemsByProductId(Integer productId) {
-        List<ProductItem> productItems = productItemRepository.findByProductId(productId);
+        List<ProductItem> productItems = productItemRepository.findProductItemsByProductId(productId);
+
+        List<ProductItemDTO> productItemDTOs = productItems
+                .stream()
+                .map(productItemDTOMapper::toDTO)
+                .toList();
+
+        for (int i = 0; i < productItemDTOs.size(); i++) {
+            List<ProductConfigurationDTO> productConfigurationDTOs = productItems.get(i).getConfigurations()
+                    .stream()
+                    .map(productConfigurationDTOMapper::toDTO)
+                    .toList();
+
+            productItemDTOs.get(i).setConfigurations(productConfigurationDTOs);
+        }
+
+        return productItemDTOs;
+    }
+
+    @Override
+    @Transactional
+    public List<ProductItemDTO> getProductItemsByProductSlug(String slug) {
+        List<ProductItem> productItems = productItemRepository.findProductItemsByProductSlug(slug);
 
         List<ProductItemDTO> productItemDTOs = productItems
                 .stream()
@@ -295,5 +322,31 @@ public class ProductItemServiceImpl implements ProductItemService {
         ProductItem productItem = productItemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id [%d] not found".formatted(id)));
         productItemRepository.delete(productItem);
+    }
+
+    @Override
+    @Transactional
+    public PageResponse<ProductItemDTO> searchProductItem(String slug, int page, int size, String sort, String dir, Double minPrice, Double maxPrice) {
+
+
+        Sort sortBy = dir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sort).ascending()
+                : Sort.by(sort).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+        Page<ProductItem> pages = productItemRepository.findProductItemBy(slug, minPrice, maxPrice, pageable);
+
+        List<ProductItemDTO> productItemDTOs = pages.getContent()
+                .stream()
+                .map(productItemDTOMapper::toDTO)
+                .toList();
+
+        return PageResponse.<ProductItemDTO>builder()
+                .currentPage(page)
+                .pageSize(pages.getSize())
+                .totalPages(pages.getTotalPages())
+                .totalElements(pages.getTotalElements())
+                .content(productItemDTOs)
+                .build();
     }
 }

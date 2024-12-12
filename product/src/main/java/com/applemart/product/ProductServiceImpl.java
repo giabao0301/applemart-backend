@@ -140,6 +140,11 @@ public class ProductServiceImpl implements ProductService {
             product.setThumbnailUrl(productUpdateRequest.getThumbnailUrl());
             changed = true;
         }
+
+        if (productUpdateRequest.getReleaseYear() != null && !productUpdateRequest.getReleaseYear().equals(product.getReleaseYear())) {
+            product.setReleaseYear(productUpdateRequest.getReleaseYear());
+            changed = true;
+        }
 //  end
 
         Category category = categoryRepository.findByUrlKey(request.getCategory())
@@ -204,5 +209,35 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product [%d] not found".formatted(id)));
         productRepository.delete(product);
+    }
+
+    @Override
+    @Transactional
+    public PageResponse<ProductDTO> searchProduct(String name, int page, int size, String sort, String dir) {
+        Sort sortBy = dir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sort).ascending()
+                : Sort.by(sort).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+
+        Page<Product> pages = productRepository.searchProductByName(name, pageable);
+
+        List<ProductDTO> productDTOs =  pages.getContent()
+                .stream()
+                .map(productDTOMapper::toDTO)
+                .toList();
+
+        return PageResponse.<ProductDTO>builder()
+                .currentPage(page)
+                .pageSize(pages.getSize())
+                .totalPages(pages.getTotalPages())
+                .totalElements(pages.getTotalElements())
+                .content(productDTOs)
+                .build();
+    }
+
+    @Override
+    public List<String> getSuggestions(String query) {
+        return productRepository.findSuggestions(query.toLowerCase());
     }
 }

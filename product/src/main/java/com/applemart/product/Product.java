@@ -37,6 +37,8 @@ public class Product {
 
     private String slug;
 
+    private Integer releaseYear;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductItem> productItems = new ArrayList<>();
 

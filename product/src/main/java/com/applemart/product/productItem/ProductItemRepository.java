@@ -1,6 +1,8 @@
 package com.applemart.product.productItem;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +16,10 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Intege
     Optional<ProductItem> findBySlug(String slug);
 
     @Query("SELECT p FROM ProductItem p WHERE p.product.id = :productId")
-    List<ProductItem> findByProductId(@Param("productId") Integer productId);
+    List<ProductItem> findProductItemsByProductId(@Param("productId") Integer productId);
+
+    @Query("SELECT p FROM ProductItem p WHERE p.product.slug = :slug")
+    List<ProductItem> findProductItemsByProductSlug(@Param("slug") String slug);
 
     @Modifying
     @Transactional
@@ -23,5 +28,10 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Intege
 
     boolean existsByName(String name);
 
-    Optional<ProductItem> findByName(String name);
+    @Query("SELECT p " +
+            "FROM ProductItem p " +
+            "WHERE p.slug LIKE %:slug% " +
+            "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+    Page<ProductItem> findProductItemBy(@Param("slug") String slug, @Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice, Pageable pageable);
 }

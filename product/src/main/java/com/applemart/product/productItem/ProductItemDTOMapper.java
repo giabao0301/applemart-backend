@@ -12,9 +12,10 @@ public class ProductItemDTOMapper {
     public ProductItemDTO toDTO(ProductItem productItem) {
         modelMapper
                 .typeMap(ProductItem.class, ProductItemDTO.class)
-                .addMappings(mapper -> {
-                    mapper.map(src -> src.getProduct().getName(), ProductItemDTO::setProductName);
-                });
+                .addMapping(src -> src.getProduct().getName(), ProductItemDTO::setProductName)
+                .addMapping(src -> src.getProduct().getCategory().getUrlKey(), ProductItemDTO::setCategory)
+                .addMapping(src -> src.getProduct().getReleaseYear(), ProductItemDTO::setReleaseYear);
+
         return modelMapper.map(productItem, ProductItemDTO.class);
     }
 

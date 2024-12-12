@@ -14,6 +14,7 @@ public class ProductItemDTO {
     private Integer id;
     private String productName;
     private String name;
+    private String category;
 
     @Min(value = 0, message = "Product quantity is invalid")
     private Integer quantityInStock;
@@ -22,6 +23,7 @@ public class ProductItemDTO {
     private Double price;
     private String imageUrl;
     private String slug;
+    private Integer releaseYear;
 
     private List<ProductConfigurationDTO> configurations;
 

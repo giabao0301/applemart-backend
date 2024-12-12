@@ -1,7 +1,10 @@
 package com.applemart.product.productItem;
 
 
+import com.applemart.product.ProductDTO;
 import com.applemart.product.common.ApiResponse;
+import com.applemart.product.common.PageResponse;
+import com.applemart.product.utils.AppConstants;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -61,5 +64,24 @@ public class ProductItemController {
     public ResponseEntity<String> deleteProductItem(@PathVariable("id") Integer id) {
         productItemService.deleteProductItem(id);
         return new ResponseEntity<>("Product item [%d] is deleted successfully".formatted(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<PageResponse<ProductItemDTO>>> searchProduct(
+            @RequestParam("slug") String slug,
+            @RequestParam(value = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+            @RequestParam(value = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(value = "sort", required = false, defaultValue = AppConstants.DEFAULT_SORT_BY) String sort,
+            @RequestParam(value = "dir", required = false, defaultValue = AppConstants.DEFAULT_SORT_DIRECTION) String dir,
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false) Double maxPrice
+    ) {
+        PageResponse<ProductItemDTO> product = productItemService.searchProductItem(slug, page, size, sort, dir, minPrice, maxPrice);
+        ApiResponse<PageResponse<ProductItemDTO>> apiResponse = ApiResponse.<PageResponse<ProductItemDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(product)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 }

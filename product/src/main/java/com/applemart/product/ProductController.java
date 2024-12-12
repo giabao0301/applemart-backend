@@ -73,13 +73,24 @@ public class ProductController {
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    
+
     @GetMapping("/{id}/productItems")
-    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductSlug(@PathVariable("id") Integer id) {
+    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductId(@PathVariable("id") Integer id) {
         ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
                 .data(productItemService.getProductItemsByProductId(id))
+                .build();
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/productItems")
+    public ResponseEntity<ApiResponse<List<ProductItemDTO>>> getProductItemByProductSlug(@RequestParam("slug") String slug) {
+        ApiResponse<List<ProductItemDTO>> apiResponse = ApiResponse.<List<ProductItemDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(productItemService.getProductItemsByProductSlug(slug))
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -103,5 +114,28 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable("id") Integer id) {
         productService.deleteProduct(id);
         return new ResponseEntity<>("Product is deleted successfully", HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<PageResponse<ProductDTO>>> searchProduct(
+            @RequestParam("name") String name,
+            @RequestParam(value = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+            @RequestParam(value = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(value = "sort", required = false, defaultValue = AppConstants.DEFAULT_SORT_BY) String sort,
+            @RequestParam(value = "dir", required = false, defaultValue = AppConstants.DEFAULT_SORT_DIRECTION) String dir
+    ) {
+        PageResponse<ProductDTO> product = productService.searchProduct(name, page, size, sort, dir);
+        ApiResponse<PageResponse<ProductDTO>> apiResponse = ApiResponse.<PageResponse<ProductDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(product)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<String>> getSuggestions(@RequestParam("query") String query) {
+        List<String> suggestions = productService.getSuggestions(query);
+        return ResponseEntity.ok(suggestions);
     }
 }
