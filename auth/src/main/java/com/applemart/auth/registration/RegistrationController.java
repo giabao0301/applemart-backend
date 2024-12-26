@@ -1,10 +1,11 @@
 package com.applemart.auth.registration;
 
-import com.applemart.auth.user.UserDTO;
 import com.applemart.auth.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -43,18 +44,33 @@ public class RegistrationController {
 
     @PostMapping("/resend-activation")
     public ResponseEntity<?> resendActivationEmail(@RequestBody ResendActivationRequest request) {
-        registrationService.resendActivationEmail(request.getEmail());
+        registrationService.sendActivationEmail(request.getEmail());
         return ResponseEntity.ok("Activation email sent.");
     }
 
 
     @GetMapping(value = {"/registration/confirm", "/signup/confirm"})
-    public ResponseEntity<String> confirm(@RequestParam("token") String token) {
+    public ResponseEntity<String> confirm(@RequestParam("token") String token, HttpServletResponse response) {
         Integer userId = registrationService.confirmToken(token);
         String jwtToken = jwtUtil.issueToken(String.valueOf(userId), "USER");
+        String refreshToken = jwtUtil.issueRefreshToken(String.valueOf(userId), "USER");
+
+        Cookie accessTokenCookie = new Cookie("accessToken", jwtToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(false); // true in production
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(10 * 60); // 10 minutes
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(false); // true in production
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.AUTHORIZATION, jwtToken)
                 .body("User registered successfully");
     }
 }

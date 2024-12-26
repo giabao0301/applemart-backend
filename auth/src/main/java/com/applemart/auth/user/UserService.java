@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UserService {
     PageResponse<UserDTO> getUsers(int page, int size, String sort, String dir);
-    UserDTO getUserProfile();
+    UserDTO getUserProfile(Integer id);
     UserDTO getUserById(Integer id);
     UserDTO getUserByEmail(String email);
     void createUser(UserCreationRequest request);

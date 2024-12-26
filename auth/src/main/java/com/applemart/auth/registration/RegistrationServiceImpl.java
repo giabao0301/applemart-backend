@@ -61,7 +61,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         userDTOMapper.toDTO(userRepository.save(user));
 
-        this.resendActivationEmail(user.getEmail());
+        this.sendActivationEmail(user.getEmail());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
-    public void resendActivationEmail(String email) {
+    public void sendActivationEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email [%s] not found".formatted(email)));
 

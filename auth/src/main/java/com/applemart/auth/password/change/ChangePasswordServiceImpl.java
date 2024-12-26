@@ -4,7 +4,6 @@ import com.applemart.auth.exception.RequestValidationException;
 import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.user.User;
 import com.applemart.auth.user.UserRepository;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

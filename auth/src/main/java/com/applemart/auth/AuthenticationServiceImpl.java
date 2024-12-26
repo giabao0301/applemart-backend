@@ -1,7 +1,9 @@
 package com.applemart.auth;
 
 import com.applemart.auth.user.User;
+import com.applemart.auth.user.UserDTO;
 import com.applemart.auth.user.UserService;
+import com.applemart.auth.user.role.RoleDTO;
 import com.applemart.auth.utils.JWTUtil;
 import com.nimbusds.jose.JOSEException;
 import jakarta.transaction.Transactional;
@@ -65,8 +67,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (BadCredentialsException | JOSEException | ParseException e) {
             isValid = false;
         }
+
+        if (isValid) {
+            String userId = jwtUtil.extractSubject(token);
+            UserDTO user = userService.getUserById(Integer.parseInt(userId));
+            List<String> roles = user.getRoles().stream()
+                    .map(RoleDTO::getName)
+                    .toList();
+
+            return IntrospectResponse.builder()
+                    .isValid(true)
+                    .userId(userId)
+                    .authorities(roles)
+                    .build();
+        }
+
         return IntrospectResponse.builder()
-                .isValid(isValid)
+                .isValid(false)
                 .build();
     }
 

@@ -5,6 +5,7 @@ import com.applemart.auth.common.PageResponse;
 import com.applemart.auth.user.address.AddressDTO;
 import com.applemart.auth.utils.AppConstants;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,8 @@ public class UserController {
             @RequestParam(name = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
             @RequestParam(name = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", required = false, defaultValue = AppConstants.DEFAULT_SORT_BY) String sort,
-            @RequestParam(name = "dir", required = false, defaultValue = AppConstants.DEFAULT_SORT_DIRECTION) String dir
+            @RequestParam(name = "dir", required = false, defaultValue = AppConstants.DEFAULT_SORT_DIRECTION) String dir,
+            HttpServletRequest request
     ) {
         PageResponse<UserDTO> users = userService.getUsers(page, size, sort, dir);
 
@@ -80,11 +82,11 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<UserDTO>> getUserProfile() {
+    public ResponseEntity<ApiResponse<UserDTO>> getUserProfile(@RequestHeader("X-User-Id") Integer userId) {
         ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
-                .data(userService.getUserProfile())
+                .data(userService.getUserProfile(userId))
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);

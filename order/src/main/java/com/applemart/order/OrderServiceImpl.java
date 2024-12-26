@@ -44,7 +44,7 @@ public class OrderServiceImpl implements OrderService {
     private boolean isAuthorized(String userId) {
         String authenticatedUserId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        return userId.equals(authenticatedUserId) || userId.equals("1");
+        return !userId.equals(authenticatedUserId) && !userId.equals("1");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderCreationResponse createOrder(OrderCreationRequest orderCreationRequest) {
         Integer userId = orderCreationRequest.getUserId();
 
-        if (!isAuthorized(String.valueOf(userId))) {
+        if (isAuthorized(String.valueOf(userId))) {
             throw new AccessDeniedException("You are not authorized to make this order");
         }
 
@@ -188,8 +188,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public List<OrderDTO> getOrderByUserId(Integer userId) {
 
-        if (!isAuthorized(String.valueOf(userId))) {
-            throw new AccessDeniedException("You are not authorized to make this order");
+        if (isAuthorized(String.valueOf(userId))) {
+            throw new AccessDeniedException("You are not authorized to see this order");
         }
 
         List<Order> orders = orderRepository.findByUserId(userId);
@@ -322,7 +322,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDTO updateOrderInfo(OrderUpdateRequestForUser request) {
 
-        if (!isAuthorized(String.valueOf(request.getUserId()))) {
+        if (isAuthorized(String.valueOf(request.getUserId()))) {
             throw new AccessDeniedException("You are not authorized to update this order");
         }
 
@@ -432,7 +432,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void cancelOrder(OrderCancellationRequest request) {
-        if (!isAuthorized(String.valueOf(request.getUserId()))) {
+        if (isAuthorized(String.valueOf(request.getUserId()))) {
             throw new AccessDeniedException("You are not authorized to cancel this order");
         }
 

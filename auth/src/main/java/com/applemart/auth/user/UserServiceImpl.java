@@ -85,8 +85,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO getUserProfile() {
-        return userDTOMapper.toDTO(getLoggedInUser());
+    public UserDTO getUserProfile(Integer id) {
+        return userDTOMapper.toDTO(userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found".formatted(id))));
     }
 
     @Override
@@ -141,10 +142,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO updateUser(Integer id, UserUpdateRequest request) {
-        if (emailValidationService.validateEmail(request.getEmail())) {
-            throw new ResourceNotFoundException("Email doesn't exist");
-        }
-
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(id)));
 
@@ -153,6 +150,10 @@ public class UserServiceImpl implements UserService {
 
         if (!getLoggedInUser().getUsername().equals(user.getUsername()) && !getLoggedInUser().getRoles().contains(role)) {
             throw new AccessDeniedException("You don't have permission to update this user");
+        }
+
+        if (emailValidationService.validateEmail(request.getEmail())) {
+            throw new ResourceNotFoundException("Email doesn't exist");
         }
 
         User userUpdateRequest = userDTOMapper.toEntity(request);

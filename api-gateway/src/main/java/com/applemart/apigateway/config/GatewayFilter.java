@@ -1,15 +1,15 @@
 package com.applemart.apigateway.config;
 
 import com.applemart.apigateway.ApiResponse;
-import com.applemart.apigateway.AuthService;
+import com.applemart.apigateway.utils.JWTUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,20 +19,25 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class AuthenticationFilter implements GlobalFilter, Ordered {
+public class GatewayFilter implements GlobalFilter, Ordered {
 
-    private final AuthService authService;
     private final ObjectMapper objectMapper;
+    private final JWTUtil jwtUtil;
 
     private String[] publicEndpoints = {
-            "/api/v1/auth/.*",
-            "/api/v1/users/.*",
+            "/api/v1/auth/registration",
+            "/api/v1/auth/signup",
+            "/api/v1/auth/registration/confirm",
+            "/api/v1/auth/login",
+            "/api/v1/auth/logout",
+            "/api/v1/auth/refresh",
             "/api/v1/products/.*",
             "/api/v1/products",
             "/api/v1/productItems/.*",
@@ -40,15 +45,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/v1/categories",
             "/api/v1/categories/.*",
             "/api/v1/variationOptions",
-            "/api/v1/carts",
-            "/api/v1/carts/.*",
-            "/api/v1/orders",
-            "/api/v1/orders/.*",
-            "/api/v1/shippingMethods",
-            "/api/v1/payments/.*",
-            "/api/v1/payments",
-            "/actuator/**"
+            "/api/v1/shippingMethods"
     };
+
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -58,31 +57,46 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        // Extract the token from the "accessToken" cookie
         String token = extractTokenFromCookie(exchange.getRequest());
+
         if (token == null) {
             log.info("No access token found in cookies");
             return unauthenticated(exchange.getResponse());
         }
-        log.info("Token extracted from cookie: {}", token);
 
-        // Introspect the token
-        return authService.introspect(token).flatMap(introspectResponse -> {
-            if (introspectResponse.getData().getIsValid()) {
-                return chain.filter(exchange);
-            } else {
-                return unauthenticated(exchange.getResponse());
-            }
-        }).onErrorResume(throwable -> {
-            log.error("Error during token introspection", throwable);
-            return unauthenticated(exchange.getResponse());
-        });
+        try {
+            log.info("Token extracted from cookie: {}", token);
+            jwtUtil.verifyToken(token);
+
+            String userId = jwtUtil.extractSubject(token);
+            List<String> roles = jwtUtil.extractScopes(token);
+
+            log.info("User authenticated: userId={}, roles={}", userId, roles);
+
+            ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                    .header("X-User-Id", userId)
+                    .header("X-User-Roles", String.join(",", roles))
+                    .build();
+
+            return chain.filter(exchange.mutate()
+                    .request(mutatedRequest)
+                    .build());
+
+        } catch (ParseException | JOSEException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String extractTokenFromCookie(ServerHttpRequest request) {
-        List<HttpCookie> cookies = request.getCookies().get("accessToken");
-        if (cookies != null && !cookies.isEmpty()) {
-            return cookies.get(0).getValue();
+        String cookieHeader = request.getHeaders().getFirst(HttpHeaders.COOKIE);
+
+        if (cookieHeader != null) {
+            String[] cookies = cookieHeader.split("; ");
+            for (String cookie : cookies) {
+                if (cookie.startsWith("accessToken=")) {
+                    return cookie.substring(("accessToken=").length());
+                }
+            }
         }
         return null;
     }
@@ -99,7 +113,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private Mono<Void> unauthenticated(ServerHttpResponse response) {
         ApiResponse<?> apiResponse = ApiResponse.builder()
-                .status(401)
+                .status(403)
                 .message("UNAUTHENTICATED")
                 .build();
 
@@ -110,7 +124,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             throw new RuntimeException(e);
         }
 
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.setStatusCode(HttpStatus.FORBIDDEN);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
         return response.writeWith(

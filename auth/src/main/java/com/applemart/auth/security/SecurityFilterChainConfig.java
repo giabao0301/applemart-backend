@@ -12,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
@@ -37,15 +38,15 @@ public class SecurityFilterChainConfig {
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.POST,
-                                        "/api/v1/users/*/addresses",
-                                        "/api/v1/auth/**")
+                                        "/api/v1/auth/**",
+                                        "/api/v1/users/*/addresses"
+                                )
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.GET,
-                                        "/api/v1/users/addresses/**",
+                                        "/api/v1/users/profile",
                                         "/api/v1/auth/registration/confirm",
-                                        "/api/v1/auth/reset-password/confirm",
-                                        "/api/v1/auth/signup/confirm",
+                                        "/api/v1/auth/logout",
                                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
                                 .permitAll()
                                 .requestMatchers(
@@ -60,7 +61,7 @@ public class SecurityFilterChainConfig {
                                 .hasRole("ADMIN")
                                 .anyRequest()
                                 .authenticated())
-
+                .addFilterBefore(new AuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 ->
                         oauth2
                                 .jwt(jwtConfigurer ->
@@ -69,7 +70,8 @@ public class SecurityFilterChainConfig {
                                                 .jwtAuthenticationConverter(jwtAuthenticationConverter))
 
                                 .authenticationEntryPoint(authenticationEntryPoint)
-                                .accessDeniedHandler(accessDeniedHandler))
+                                .accessDeniedHandler(accessDeniedHandler)
+                )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
                                 .userInfoEndpoint(userInfoEndpoint ->
@@ -91,6 +93,4 @@ public class SecurityFilterChainConfig {
 
         return http.build();
     }
-
-
 }
