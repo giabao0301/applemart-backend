@@ -7,8 +7,7 @@ import com.applemart.auth.exception.ResourceNotFoundException;
 import com.applemart.auth.token.TokenRepository;
 import com.applemart.auth.common.PageResponse;
 import com.applemart.auth.user.address.*;
-import com.applemart.auth.user.role.Role;
-import com.applemart.auth.user.role.RoleRepository;
+import com.applemart.auth.user.role.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +24,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -141,16 +138,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO updateUser(Integer id, UserUpdateRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(id)));
-
-        Role role = roleRepository.findByName("ADMIN")
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-
-        if (!getLoggedInUser().getUsername().equals(user.getUsername()) && !getLoggedInUser().getRoles().contains(role)) {
-            throw new AccessDeniedException("You don't have permission to update this user");
-        }
+    public UserDTO updateUserProfile(UserUpdateRequest request) {
+        User user = getLoggedInUser();
 
         if (emailValidationService.validateEmail(request.getEmail())) {
             throw new ResourceNotFoundException("Email doesn't exist");
@@ -198,6 +187,81 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public UserDTO updateUserById(Integer id, UserDTO request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(id)));
+
+        Role adminRole = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        if (!getLoggedInUser().getRoles().contains(adminRole)) {
+            throw new AccessDeniedException("You don't have permission to update this user");
+        }
+
+        if (emailValidationService.validateEmail(request.getEmail())) {
+            throw new ResourceNotFoundException("Email doesn't exist");
+        }
+
+        User userUpdateRequest = userDTOMapper.toEntity(request);
+
+        boolean changed = false;
+
+        if (userUpdateRequest.getUsername() != null && !userUpdateRequest.getUsername().equals(user.getUsername())) {
+            user.setUsername(userUpdateRequest.getUsername());
+            changed = true;
+        }
+
+        if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().equals(user.getEmail())) {
+            user.setEmail(userUpdateRequest.getEmail());
+            changed = true;
+        }
+
+        if (userUpdateRequest.getFullName() != null && !userUpdateRequest.getFullName().equals(user.getFullName())) {
+            user.setFullName(userUpdateRequest.getFullName());
+            changed = true;
+        }
+
+        if (userUpdateRequest.getDateOfBirth() != null && !userUpdateRequest.getDateOfBirth().equals(user.getDateOfBirth())) {
+            user.setDateOfBirth(userUpdateRequest.getDateOfBirth());
+            changed = true;
+        }
+
+        if (userUpdateRequest.getPhoneNumber() != null && !userUpdateRequest.getPhoneNumber().equals(user.getPhoneNumber())) {
+            user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+            changed = true;
+        }
+
+        if (userUpdateRequest.getProfileImageUrl() != null && !userUpdateRequest.getProfileImageUrl().equals(user.getProfileImageUrl())) {
+            user.setProfileImageUrl(userUpdateRequest.getProfileImageUrl());
+            changed = true;
+        }
+
+        if (userUpdateRequest.getEnabled() != null && !userUpdateRequest.getEnabled().equals(user.getEnabled())) {
+            user.setEnabled(userUpdateRequest.getEnabled());
+            changed = true;
+        }
+
+        Set<Role> roles = userUpdateRequest.getRoles().stream()
+                .map(role -> roleRepository.findByName(role.getName())
+                        .orElseThrow(() -> new ResourceNotFoundException("Role [%s] not found".formatted(role.getName())))
+                )
+                .collect(Collectors.toSet());
+
+        if (!roles.equals(user.getRoles())) {
+            user.setRoles(roles);
+            changed = true;
+        }
+
+        if (!changed) {
+            throw new RequestValidationException("No data changes found");
+        }
+
+        return userDTOMapper.toDTO(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
     public void deleteUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(id)));
@@ -247,11 +311,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public AddressDTO getAddressById(Integer id) {
+    public List<AddressDTO> getAddressesByUserId(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(userId)));
 
-        User user = getLoggedInUser();
+        return addressRepository.findByUser(user)
+                .stream()
+                .map(addressDTOMapper::toDTO)
+                .toList();
+    }
 
-        Address address = addressRepository.findByUserIdAndAddressId(user.getId(), id)
+    @Override
+    @Transactional
+    public AddressDTO getAddressById(Integer userId, Integer id) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found]".formatted(userId)));
+
+        Role role = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        if (!getLoggedInUser().getUsername().equals(user.getUsername()) && !getLoggedInUser().getRoles().contains(role)) {
+            throw new AccessDeniedException("You don't have permission to view this address");
+        }
+
+        Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Address with id [%d] not found".formatted(id)));
 
         return addressDTOMapper.toDTO(address);

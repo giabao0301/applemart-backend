@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 public class AddressService {
     private final AddressClient addressClient;
 
-    public AddressDTO getAddressById(String id) {
-        return addressClient.getAddressById(id).getData();
+    public AddressDTO getAddressById(String userId, String id) {
+        return addressClient.getAddressById(userId, id).getData();
     }
 
 }

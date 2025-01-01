@@ -124,4 +124,9 @@ public class JWTUtil {
         SignedJWT signedJWT = SignedJWT.parse(token);
         return signedJWT.getJWTClaimsSet().getSubject();
     }
+
+    public List<String> extractScopes(String token) throws JOSEException, ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getStringListClaim("scopes");
+    }
 }

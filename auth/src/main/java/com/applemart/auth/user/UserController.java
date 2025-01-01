@@ -24,6 +24,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<UserDTO>>> getUsers(
@@ -71,11 +72,22 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable("id") Integer id, @RequestBody @Valid UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable("id") Integer id, @RequestBody @Valid UserDTO request) {
         ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
-                .data(userService.updateUser(id, request))
+                .data(userService.updateUserById(id, request))
+                .build();
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@RequestBody @Valid UserUpdateRequest request) {
+        ApiResponse<UserDTO> apiResponse = ApiResponse.<UserDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(userService.updateUserProfile(request))
                 .build();
 
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -102,12 +114,22 @@ public class UserController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/addresses/{id}")
-    public ResponseEntity<ApiResponse<AddressDTO>> getAddressById(@PathVariable("id") Integer id) {
+    @GetMapping("/{userId}/addresses")
+    public ResponseEntity<ApiResponse<List<AddressDTO>>> getAddressesByUserId(@PathVariable("userId") Integer userId) {
+        ApiResponse<List<AddressDTO>> apiResponse = ApiResponse.<List<AddressDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(userService.getAddressesByUserId(userId))
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/addresses/{id}")
+    public ResponseEntity<ApiResponse<AddressDTO>> getAddressById(@PathVariable("userId") Integer userId, @PathVariable("id") Integer id) {
         ApiResponse<AddressDTO> apiResponse = ApiResponse.<AddressDTO>builder()
                 .status(HttpStatus.OK.value())
                 .message("OK")
-                .data(userService.getAddressById(id))
+                .data(userService.getAddressById(userId, id))
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }

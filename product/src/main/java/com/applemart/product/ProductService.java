@@ -15,4 +15,5 @@ public interface ProductService {
 
     PageResponse<ProductDTO> searchProduct(String name, int page, int size, String sort, String dir);
     List<String> getSuggestions(String query);
+    ProductStatsDTO getProductStats();
 }

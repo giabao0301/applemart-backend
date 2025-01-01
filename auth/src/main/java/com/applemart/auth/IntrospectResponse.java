@@ -13,6 +13,4 @@ import java.util.List;
 @NoArgsConstructor
 public class IntrospectResponse {
     private Boolean isValid;
-    private String userId;
-    private List<String> authorities;
 }

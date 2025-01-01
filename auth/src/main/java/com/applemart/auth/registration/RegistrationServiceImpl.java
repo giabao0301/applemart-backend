@@ -34,9 +34,9 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public void register(RegistrationRequest request) {
 
-//        if (emailValidationService.validateEmail(request.getEmail())) {
-//            throw new ResourceNotFoundException("Email doesn't exist");
-//        }
+        if (emailValidationService.validateEmail(request.getEmail())) {
+            throw new ResourceNotFoundException("Email doesn't exist");
+        }
 
         User user = userDTOMapper.toEntity(request);
 

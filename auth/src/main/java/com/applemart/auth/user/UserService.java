@@ -12,13 +12,15 @@ public interface UserService {
     UserDTO getUserById(Integer id);
     UserDTO getUserByEmail(String email);
     void createUser(UserCreationRequest request);
-    UserDTO updateUser(Integer id, UserUpdateRequest request);
+    UserDTO updateUserProfile(UserUpdateRequest request);
+    UserDTO updateUserById(Integer id, UserDTO request);
     void deleteUserById(Integer id);
     Optional<User> isUserExist(String identifier);
 
 //    for user address
     List<AddressDTO> getAddress();
-    AddressDTO getAddressById(Integer id);
+    List<AddressDTO> getAddressesByUserId(Integer userId);
+    AddressDTO getAddressById(Integer userId, Integer id);
     AddressDTO addAddress(AddressDTO request);
     AddressDTO updateAddress(Integer id, AddressDTO request);
     void setDefaultAddress(Integer id);

@@ -100,4 +100,16 @@ public class OrderController {
         orderService.deleteOrderById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<OrderStatsDTO>> getOrderStats() {
+        OrderStatsDTO orderStats = orderService.getOrderStats();
+
+        ApiResponse<OrderStatsDTO> apiResponse = ApiResponse.<OrderStatsDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(orderStats)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
 }

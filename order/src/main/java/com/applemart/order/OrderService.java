@@ -13,4 +13,5 @@ public interface OrderService {
     OrderDTO updateOrderInfo(OrderUpdateRequestForUser orderUpdateRequest);
     void cancelOrder(OrderCancellationRequest orderCancellationRequest);
     void deleteOrderById(Integer orderCancellationRequest);
+    OrderStatsDTO getOrderStats();
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.List;
 
 @Tag(
         name = "Auth",
@@ -30,17 +31,13 @@ public class AuthenticationController {
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest request, HttpServletResponse response) throws ParseException, JOSEException {
         AuthenticationResponse result = authenticationService.login(request);
 
-        String userId = jwtUtil.extractSubject(result.getToken());
-
-        String refreshToken = jwtUtil.issueRefreshToken(userId, "USER");
-
         Cookie accessTokenCookie = new Cookie("accessToken", result.getToken());
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(false); // true in production
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(10 * 60); // 10 minutes
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", result.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(false); // true in production
         refreshTokenCookie.setPath("/");
@@ -52,8 +49,8 @@ public class AuthenticationController {
         return ResponseEntity.ok("Login successful");
     }
 
-    @PostMapping("/introspect")
-    public ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request, HttpServletRequest httpServletRequest) throws ParseException, JOSEException {
+    @GetMapping("/introspect")
+    public ApiResponse<IntrospectResponse> introspect(HttpServletRequest request) throws ParseException, JOSEException {
         IntrospectResponse introspectResponse = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .status(HttpStatus.OK.value())
@@ -74,8 +71,9 @@ public class AuthenticationController {
         jwtUtil.verifyToken(refreshToken);
 
         String userId = jwtUtil.extractSubject(refreshToken);
+        List<String> scopes = jwtUtil.extractScopes(refreshToken);
 
-        String newAccessToken = jwtUtil.issueToken(userId);
+        String newAccessToken = jwtUtil.issueToken(userId, scopes);
 
         Cookie newAccessTokenCookie = new Cookie("accessToken", newAccessToken);
         newAccessTokenCookie.setHttpOnly(true);
@@ -89,6 +87,14 @@ public class AuthenticationController {
 
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
+
+        Cookie jsessionidCookie = new Cookie("JSESSIONID", null);
+        jsessionidCookie.setHttpOnly(true);
+        jsessionidCookie.setSecure(false); // true in production
+        jsessionidCookie.setPath("/");
+        jsessionidCookie.setMaxAge(0);
+        response.addCookie(jsessionidCookie);
+
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(false); // true in production

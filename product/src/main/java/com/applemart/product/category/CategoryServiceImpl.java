@@ -181,20 +181,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategoryByUrlKey(String urlKey) {
-        Category category = categoryRepository.findByUrlKey(urlKey)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-
-        Category uncategorized = categoryRepository.findByUrlKey("uncategorized")
+    public void deleteCategoryById(Integer id) {
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         List<Product> products = productRepository.findByCategory(category);
         for (Product product : products) {
             category.removeProduct(product);
-            product.setCategory(uncategorized);
             productRepository.save(product);
         }
 
-        categoryRepository.delete(category);
+        categoryRepository.deleteCategoryById(id);
     }
 }

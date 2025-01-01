@@ -36,14 +36,14 @@ public class Order {
     private PaymentMethod paymentMethod;
 
     @Column(nullable = false, length = 50)
-    private String paymentStatus; // Đang chờ / Hoàn tất
+    private String paymentStatus; // Chưa thanh toán / Hoàn thành / Thất bại
 
     @ManyToOne
     @JoinColumn(name = "shipping_method_id", nullable = false)
     private ShippingMethod shippingMethod;
 
     @Column(nullable = false, length = 50)
-    private String orderStatus; // Chờ xác nhận / Đang chuẩn bị hàng / Đang giao / Hoàn thành / Đã hủy / Trả hàng
+    private String orderStatus; // Chờ xác nhận / Đang chuẩn bị / Đang giao / Hoàn thành / Đã hủy / Đã trả
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines = new ArrayList<>();

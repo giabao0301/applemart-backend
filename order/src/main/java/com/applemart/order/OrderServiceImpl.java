@@ -58,7 +58,7 @@ public class OrderServiceImpl implements OrderService {
 
         Integer addressId = orderCreationRequest.getAddressId();
 
-        AddressDTO addressDTO = addressService.getAddressById(String.valueOf(addressId));
+        AddressDTO addressDTO = addressService.getAddressById(String.valueOf(userId), String.valueOf(addressId));
 
         if (!addressDTO.getIsDeliveryAddress()) {
             throw new BadRequestException("Address is not delivery address");
@@ -120,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
         Order orderResult = null;
 
         if (paymentMethod.getName().equals("cod")) {
-            newOrder.setPaymentStatus("Đang chờ");
+            newOrder.setPaymentStatus("Chưa thanh toán");
             newOrder.setOrderStatus("Chờ xác nhận");
             orderCreationResponse.setResult("Order created successfully");
 
@@ -128,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
             cartService.deleteProductsInCart(String.valueOf(userId), productItemIds);
         } else if (paymentMethod.getName().equals("vnpay")) {
             newOrder.setOrderStatus("Chờ xác nhận");
-            newOrder.setPaymentStatus("Đang chờ");
+            newOrder.setPaymentStatus("Chưa thanh toán");
             orderCreationResponse.setResult("Order created successfully");
 
             orderResult = orderRepository.save(newOrder);
@@ -457,5 +457,21 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order with id [%d] not found".formatted(id)));
 
         orderRepository.delete(order);
+    }
+
+    @Override
+    public OrderStatsDTO getOrderStats() {
+        List<Order> orders = orderRepository.findAll();
+
+        Double totalRevenue = orders.stream()
+                .map(Order::getTotalAmount)
+                .reduce(0.0, Double::sum);
+
+        Long totalOrders = orderRepository.count();
+
+        return OrderStatsDTO.builder()
+                .totalRevenue(totalRevenue)
+                .totalOrders(totalOrders)
+                .build();
     }
 }

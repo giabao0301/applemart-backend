@@ -90,6 +90,11 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         Token passwordResetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
 
+        Integer id = passwordResetToken.getUser().getId();
+        userRepository.enableUser(id);
+
+        tokenRepository.delete(passwordResetToken);
+
         return "http://localhost:3000/reset-password?token=%s&email=%s".formatted(passwordResetToken.getToken(), passwordResetToken.getUser().getEmail());
     }
 }

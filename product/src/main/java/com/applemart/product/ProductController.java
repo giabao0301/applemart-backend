@@ -138,4 +138,16 @@ public class ProductController {
         List<String> suggestions = productService.getSuggestions(query);
         return ResponseEntity.ok(suggestions);
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<ProductStatsDTO>> getProductStats() {
+        ProductStatsDTO productStats = productService.getProductStats();
+        ApiResponse<ProductStatsDTO> apiResponse = ApiResponse.<ProductStatsDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("OK")
+                .data(productStats)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
 }

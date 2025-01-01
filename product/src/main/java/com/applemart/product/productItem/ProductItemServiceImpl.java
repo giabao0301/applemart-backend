@@ -180,7 +180,6 @@ public class ProductItemServiceImpl implements ProductItemService {
 
         productItem.setProduct(product);
 
-
         boolean changed = false;
 
         if (productItemUpdateRequest.getQuantityInStock() != null && !productItemUpdateRequest.getQuantityInStock().equals(productItem.getQuantityInStock())) {
@@ -239,7 +238,6 @@ public class ProductItemServiceImpl implements ProductItemService {
                 }
             }
         }
-
 
         if (configurations.size() == configurationsUpdateRequest.size()) {
             for (int i = 0; i < configurations.size(); i++) {
@@ -316,6 +314,8 @@ public class ProductItemServiceImpl implements ProductItemService {
 
         return productItemDTOMapper.toDTO(productItemRepository.save(productItem));
     }
+
+
 
     @Override
     public void deleteProductItem(Integer id) {

@@ -7,6 +7,7 @@ import com.applemart.product.exception.RequestValidationException;
 import com.applemart.product.exception.ResourceNotFoundException;
 import com.applemart.product.productImage.ProductImage;
 import com.applemart.product.common.PageResponse;
+import com.applemart.product.productItem.ProductItemRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final ProductDTOMapper productDTOMapper;
+    private final ProductItemRepository productItemRepository;
 
     @Override
     @Transactional
@@ -239,5 +241,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> getSuggestions(String query) {
         return productRepository.findSuggestions(query.toLowerCase());
+    }
+
+    @Override
+    public ProductStatsDTO getProductStats() {
+        Long totalProductItems = productItemRepository.count();
+        Long totalCategories = categoryRepository.count();
+        return ProductStatsDTO.builder()
+                .totalProductItems(totalProductItems)
+                .totalCategories(totalCategories)
+                .build();
     }
 }

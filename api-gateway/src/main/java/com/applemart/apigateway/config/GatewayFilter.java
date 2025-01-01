@@ -20,8 +20,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -35,18 +34,20 @@ public class GatewayFilter implements GlobalFilter, Ordered {
             "/api/v1/auth/registration",
             "/api/v1/auth/signup",
             "/api/v1/auth/registration/confirm",
+            "/api/v1/auth/reset-password/confirm",
             "/api/v1/auth/login",
+            "/oauth2/authorization/google",
             "/api/v1/auth/logout",
             "/api/v1/auth/refresh",
-            "/api/v1/products/.*",
-            "/api/v1/products",
-            "/api/v1/productItems/.*",
-            "/api/v1/productItems",
-            "/api/v1/categories",
-            "/api/v1/categories/.*",
-            "/api/v1/variationOptions",
-            "/api/v1/shippingMethods"
+            "/api/v1/auth/introspect",
+            "/api/v1/auth/reset-password",
     };
+
+    private final Map<String, Set<String>> publicEndpointsMap = new HashMap<>() {{
+        put("/api/v1/products", new HashSet<>(Set.of("GET")));
+        put("/api/v1/productItems", new HashSet<>(Set.of("GET")));
+        put("/api/v1/categories", new HashSet<>(Set.of("GET")));
+    }};
 
 
     @Override
@@ -107,9 +108,21 @@ public class GatewayFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicEndpoint(ServerHttpRequest request) {
-        return Arrays.stream(publicEndpoints)
-                .anyMatch(s -> request.getURI().getPath().matches(s));
+        String path = request.getURI().getPath();
+        String method = request.getMethod().name();
+
+        boolean isFullyPublic = Arrays.stream(publicEndpoints)
+                .anyMatch(path::matches);
+
+        if (isFullyPublic) {
+            return true;
+        }
+
+        return publicEndpointsMap.entrySet().stream()
+                .anyMatch(entry -> path.matches(entry.getKey()) &&
+                        (entry.getValue() == null || entry.getValue().contains(method)));
     }
+
 
     private Mono<Void> unauthenticated(ServerHttpResponse response) {
         ApiResponse<?> apiResponse = ApiResponse.builder()

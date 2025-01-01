@@ -7,6 +7,6 @@ CREATE TABLE `role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `role` (`id`, `name`)
-VALUES (1,'USER'),
-       (2,'ADMIN'),
+VALUES (1,'ADMIN'),
+		(2,'USER'),
        (3,'STAFF');

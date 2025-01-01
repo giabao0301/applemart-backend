@@ -6,6 +6,8 @@ import com.applemart.auth.user.UserService;
 import com.applemart.auth.user.role.RoleDTO;
 import com.applemart.auth.utils.JWTUtil;
 import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -49,42 +51,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String token = jwtUtil.issueToken(String.valueOf(user.getId()), roles);
 
+        String refreshToken = jwtUtil.issueRefreshToken(String.valueOf(user.getId()), roles);
+
         jwtUtil.verifyToken(token);
 
         return AuthenticationResponse.builder()
                 .token(token)
+                .refreshToken(refreshToken)
                 .build();
     }
 
     @Override
-    public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
+    public IntrospectResponse introspect(HttpServletRequest request) throws ParseException, JOSEException {
         boolean isValid = true;
 
-        String token = request.getToken();
+        Cookie[] cookies = request.getCookies();
 
-        try {
-            jwtUtil.verifyToken(token);
-        } catch (BadCredentialsException | JOSEException | ParseException e) {
+        if (cookies == null) {
             isValid = false;
-        }
-
-        if (isValid) {
-            String userId = jwtUtil.extractSubject(token);
-            UserDTO user = userService.getUserById(Integer.parseInt(userId));
-            List<String> roles = user.getRoles().stream()
-                    .map(RoleDTO::getName)
-                    .toList();
-
-            return IntrospectResponse.builder()
-                    .isValid(true)
-                    .userId(userId)
-                    .authorities(roles)
-                    .build();
+        } else {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("accessToken")) {
+                    String token = cookie.getValue();
+                    try {
+                        jwtUtil.verifyToken(token);
+                    } catch (BadCredentialsException | JOSEException | ParseException e) {
+                        isValid = false;
+                    }
+                    break;
+                }
+            }
         }
 
         return IntrospectResponse.builder()
-                .isValid(false)
+                .isValid(isValid)
                 .build();
+
     }
 
 }

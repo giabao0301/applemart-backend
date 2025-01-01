@@ -37,9 +37,9 @@ public class CategoryController {
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{urlKey}")
-    public ResponseEntity<?> deleteCategory(@PathVariable String urlKey) {
-        categoryService.deleteCategoryByUrlKey(urlKey);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable("id") Integer id) {
+        categoryService.deleteCategoryById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

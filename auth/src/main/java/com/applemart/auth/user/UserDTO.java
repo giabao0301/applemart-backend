@@ -1,10 +1,8 @@
 package com.applemart.auth.user;
-import com.applemart.auth.user.role.Role;
 import com.applemart.auth.user.role.RoleDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -18,4 +16,5 @@ public class UserDTO {
     private String phoneNumber;
     private String profileImageUrl;
     private Set<RoleDTO> roles;
+    private Boolean enabled;
 }
