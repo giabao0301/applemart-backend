@@ -31,6 +31,11 @@ spring:
           uri: lb://ORDER
           predicates:
             - Path=/api/v1/orders/**, /api/v1/payments/**, /api/v1/shippingMethods/**
+        - id: notification
+          uri: lb://NOTIFICATION
+          predicates:
+                - Path=/api/v1/notifications/**, /api/v1/chats/**, /api/v1/messages/**, /ws/**
+
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

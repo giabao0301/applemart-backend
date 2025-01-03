@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,13 +30,24 @@ public class SecurityFilterChainConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
                         requests
-                                .requestMatchers("/actuator/**")
+                                .requestMatchers("/actuator/**", "/ws/**")
                                 .permitAll()
                                 .requestMatchers(
                                         HttpMethod.POST,
-                                        "/api/v1/notification")
+                                        "/api/v1/notifications",
+                                        "/api/v1/chats",
+                                        "/api/v1/messages"
+                                )
+                                .permitAll()
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/notifications",
+                                        "/api/v1/chats/**",
+                                        "/api/v1/messages/**"
+                                )
                                 .permitAll()
                 )
+                .addFilterBefore(new AuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 ->
                         oauth2
                                 .jwt(jwtConfigurer ->
