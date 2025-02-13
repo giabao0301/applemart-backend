@@ -18,10 +18,12 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 	<i>Application Architecture</i>
 </div>
 
+
 ![General Usecase Diagram](https://raw.githubusercontent.com/giabao0301/applemart-backend/refs/heads/main/app-resources/usecase.png)
 <div align="center">
 	<i>General Usecase Diagram</i>
 </div>
+
 
 ### Technologies and Framework
 [](https://github.com/AndrewNguyen-05/Harbe#technologies-and-framework)
@@ -52,25 +54,30 @@ Some of the pictures of this Application
 	<i>Login page</i>
 </div>
 
+
 ![Home page 1](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture11.png?raw=true)
 <div align="center">
 	<i>Home page 1</i>
 </div>
+
 
 ![Home page 2](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture12.png?raw=true)
 <div align="center">
 	<i>Home page 2</i>
 </div>
 
+
 ![Product detail page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture3.png?raw=true)
 <div align="center">
 	<i>Product detail page</i>
 </div>
 
+
 ![Admin product page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture5.png?raw=true)
 <div align="center">
 	<i>Admin product page</i>
 </div>
+
 
 -   Back-end:
 ![Eureka Server ](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/eureka-server.png?raw=true)
@@ -78,37 +85,45 @@ Some of the pictures of this Application
 	<i>Eureka Server</i>
 </div>
 
+
 ![Prometheus screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/prometheus.png?raw=true)
 <div align="center">
 	<i>Prometheus screen</i>
 </div>
+
 
 ![Grafana screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/grafana.png?raw=true)
 <div align="center">
 	<i>Grafana screen</i>
 </div>
 
+
 ![Zipkin screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin1.png?raw=true)
 <div align="center">
 	<i>Zipkin screen</i>
 </div>
+
 
 ![Zipkin detail screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin2.png?raw=true)
 <div align="center">
 	<i>Zipkin Detail screen</i>
 </div>
 
+
 ![Zipkin Graph screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin3.png?raw=true)
 <div align="center">
 	<i>Zipkine Graph screen</i>
 </div>
+
 
 ![ELK Stack screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/ElasticIndexManagement.png?raw=true)
 <div align="center">
 	<i>ELK Stack screen</i>
 </div>
 
+
 ![ELK Stack screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/ELKStack.png?raw=true)
 <div align="center">
 	<i>ELK Stack screen</i>
 </div>
+
