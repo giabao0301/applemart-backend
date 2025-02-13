@@ -107,14 +107,13 @@ Some of the pictures of this Application
 
 
 ![Zipkin detail screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin2.png?raw=true)
-<div align="center">
-	<i>Zipkin Detail screen</i>
-</div>
+
+_Zipkin Detail screen_
 
 
 ![Zipkin Graph screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin3.png?raw=true)
 <div align="center">
-	<i>Zipkine Graph screen</i>
+	<i>Zipkin Graph screen</i>
 </div>
 
 
