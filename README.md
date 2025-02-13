@@ -16,7 +16,7 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 ![Application Architecture](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/architecture.png?raw=true)
 <div align="center">
 	<i>Application Architecture</i>
-	<br/>
+	<br>
 </div>
 
 
