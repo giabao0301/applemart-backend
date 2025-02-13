@@ -44,11 +44,12 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 
 ### Demo
 
-[](https://github.com/AndrewNguyen-05/Harbe#demo)
+[](https://github.com/giabao0301/applemart-backend#demo)
 
 Some of the pictures of this Application
 
 -   Front-end:
+  
 ![Login page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture1.png?raw=true)
 <div align="center">
 	<i>Login page</i>
@@ -80,6 +81,7 @@ Some of the pictures of this Application
 
 
 -   Back-end:
+  
 ![Eureka Server ](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/eureka-server.png?raw=true)
 <div align="center">
 	<i>Eureka Server</i>
