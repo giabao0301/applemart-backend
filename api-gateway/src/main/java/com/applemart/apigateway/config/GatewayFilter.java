@@ -45,6 +45,7 @@ public class GatewayFilter implements GlobalFilter, Ordered {
 
     private final Map<String, Set<String>> publicEndpointsMap = new HashMap<>() {{
         put("/api/v1/products", new HashSet<>(Set.of("GET")));
+        put("/api/v1/products/.*", new HashSet<>(Set.of("GET")));
         put("/api/v1/productItems", new HashSet<>(Set.of("GET")));
         put("/api/v1/productItems/.*", new HashSet<>(Set.of("GET")));
         put("/api/v1/variationOptions", new HashSet<>(Set.of("GET")));
