@@ -33,7 +33,7 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
     -   Java 17
     -   Spring Boot 3: Authorization Server (OAuth 2)
     -   Spring Cloud Gateway, Open Feign, Stream ...
-    -   Elastic stack: Elasticsearch, Logstash, Kibana, Filebeat
+    -   Elastic stack: Elasticsearch, Logstash, Kibana
     -   Grafana stack: Prometheus, Grafana
     -   Zipkin
     -   Redis
