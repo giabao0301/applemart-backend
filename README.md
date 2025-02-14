@@ -53,7 +53,7 @@ Some of the pictures of this Application
 <div align="center">
 	<i>Login page</i>
 </div>
-
+##
 
 ![Home page 1](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture11.png?raw=true)
 <div align="center">
