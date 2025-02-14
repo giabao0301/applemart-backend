@@ -20,10 +20,9 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 </div>
 <br/>
 
-<div align="center">	
-	![General Usecase Diagram](https://raw.githubusercontent.com/giabao0301/applemart-backend/refs/heads/main/app-resources/use_case.png)
-</div>
-<div align="center">
+
+![General Usecase Diagram](https://raw.githubusercontent.com/giabao0301/applemart-backend/refs/heads/main/app-resources/use_case.png)
+<div align="left">
 	<i>General Usecase Diagram</i>
 </div>
 <br/>
