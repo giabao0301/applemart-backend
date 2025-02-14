@@ -1,3 +1,4 @@
+
 ![UIT](https://camo.githubusercontent.com/fe8ccf76dbe56d6e4e677f6414e9a21e98d9801b823963821c56e66d42614af3/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f66726f6d2d554954253230564e5548434d2d626c75653f7374796c653d666f722d7468652d6261646765266c696e6b3d68747470732533412532462532467777772e7569742e6564752e766e253246)
 
 Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applemart-frontend)
@@ -17,12 +18,14 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 <div align="center">
 	<i>Application Architecture</i>
 </div>
+<br/>
 
 
 ![General Usecase Diagram](https://raw.githubusercontent.com/giabao0301/applemart-backend/refs/heads/main/app-resources/usecase.png)
-
-_General Usecase Diagram_
-
+<div align="center">
+	<i>General Usecase Diagram</i>
+</div>
+<br/>
 
 ### Technologies and Framework
 [](https://github.com/giabao0301/applemart-backend#technologies-and-framework)
@@ -34,6 +37,8 @@ _General Usecase Diagram_
     -   Grafana stack: Prometheus, Grafana
     -   Zipkin
     -   Redis
+    -  Kafka
+    - Websocket
 -   Front-end
     -   NextJS 14
     -   ReactJS
@@ -59,25 +64,31 @@ Some of the pictures of this Application
 <div align="center">
 	<i>Home page 1</i>
 </div>
-
+<br/>
 
 ![Home page 2](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture12.png?raw=true)
 <div align="center">
 	<i>Home page 2</i>
 </div>
+<br/>
 
-
-![Product detail page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture3.png?raw=true)
+![Product detail page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture5.png?raw=true)
 <div align="center">
 	<i>Product detail page</i>
 </div>
+<br/>
 
-
-![Admin product page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture5.png?raw=true)
+![Admin Order page](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture14.png?raw=true)
 <div align="center">
 	<i>Admin product page</i>
 </div>
+<br/>
 
+![Chat screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/Picture13.png?raw=true)
+<div align="center">
+	<i>Chat screen</i>
+</div>
+<br/>
 
 -   Back-end:
   
@@ -85,45 +96,47 @@ Some of the pictures of this Application
 <div align="center">
 	<i>Eureka Server</i>
 </div>
-
+<br/>
 
 ![Prometheus screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/prometheus.png?raw=true)
 <div align="center">
 	<i>Prometheus screen</i>
 </div>
-
+<br/>
 
 ![Grafana screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/grafana.png?raw=true)
 <div align="center"
 	<i>Grafana screen</i>
 </div>
-
+<br/>
 
 ![Zipkin screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin1.png?raw=true)
 <div align="center">
 	<i>Zipkin screen</i>
 </div>
+<br/>
 
-
-![Zipkin detail screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin2.png?raw=true)
-
-_Zipkin Detail screen_
+![Zipkin Detail screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin2.png?raw=true)
+<div align="center">
+	<i>Zipkin Detail screen</i>
+</div>
+<br/>
 
 
 ![Zipkin Graph screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/zipkin3.png?raw=true)
 <div align="center">
 	<i>Zipkin Graph screen</i>
 </div>
-
+<br/>
 
 ![ELK Stack screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/ElasticIndexManagement.png?raw=true)
 <div align="center">
 	<i>ELK Stack screen</i>
 </div>
-
+<br/>
 
 ![ELK Stack screen](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/ELKStack.png?raw=true)
 <div align="center">
 	<i>ELK Stack screen</i>
 </div>
-
+<br/>
