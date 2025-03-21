@@ -8,11 +8,12 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 
  - Trinh Gia Bao - 21521866@gm.uit.edu.vn - [Github](https://github.com/giabao0301) - [Facebook](https://www.facebook.com/gia.bao.377840/)
 ### Description
--   Applemart is an ecommerce system utilizing microservices architecture, using NextJS, TailwindCSS for frontend.
--   I use SpringBoot to build services, Spring Cloud to build gateway, Resilience4j to handle error, Kafka to sync between services and Zipkin for tracing.
+-   Applemart is an e-commerce system utilizing microservices architecture, using Next.js for frontend.
+-   I use Spring Boot to build services, Spring Cloud to make gateway for microservices
+-   I also use WebSocket for real-time communication, Kafka to sync between services and Zipkin for tracing.
+-   I monitor the system health using Grafana and Prometheus.
 -   The database I choose for this project is MySQL and Redis for cart service.
--   The order of running the services is: Service Registry -> Auth Service -> Gateway Service, after running in this order, the remaining services can run in any order.
--   Run the docker compose: docker-compose -f docker-compose.infra.yml up
+-   I have integrated VNPAY API for online payment method.
 
 ![Application Architecture](https://github.com/giabao0301/applemart-backend/blob/main/app-resources/architecture.png?raw=true)
 <div align="center">
@@ -32,9 +33,8 @@ Link to Frontend repo: [Applemart Frontend](https://github.com/giabao0301/applem
 -   Back-end
     -   Java 17
     -   Spring Boot 3: Authorization Server (OAuth 2)
-    -   Spring Cloud Gateway, Open Feign, Stream ...
-    -   Elastic stack: Elasticsearch, Logstash, Kibana
-    -   Grafana stack: Prometheus, Grafana
+    -   Spring Cloud Gateway, Open Feign
+    -   Prometheus, Grafana
     -   Zipkin
     -   Redis
     -  Kafka
